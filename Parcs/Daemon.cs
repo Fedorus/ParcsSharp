@@ -51,9 +51,9 @@ namespace Parcs
         {
             daemon.SendFile(data);
         }
-        public async Task<bool> SendFileAsync(FileTransferData data)
+        public Task<bool> SendFileAsync(FileTransferData data)
         {
-           return await daemon.SendFileAsync(data);
+           return daemon.SendFileAsync(data);
         }
     }
 }
