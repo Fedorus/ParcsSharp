@@ -4,13 +4,12 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{F3F0276C-F00A-4F88-B16B-ADA918E13C57}</ProjectGuid>
+    <ProjectGuid>{C0A939D2-5C22-4BCF-8EF7-574ADB1F9A4F}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>ParcsSharp</RootNamespace>
-    <AssemblyName>ParcsSharp</AssemblyName>
+    <RootNamespace>SimpleTest</RootNamespace>
+    <AssemblyName>SimpleTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -33,16 +32,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="SimpleClass.cs" />
-    <Compile Include="Program.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
+    <ProjectReference Include="..\ParcsSharp\ParcsSharp.csproj">
+      <Project>{F3F0276C-F00A-4F88-B16B-ADA918E13C57}</Project>
+      <Name>ParcsSharp</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Parcs\Parcs.csproj">
       <Project>{566D39E1-2F1D-47E4-9B45-2CFF51636B51}</Project>
       <Name>Parcs</Name>
