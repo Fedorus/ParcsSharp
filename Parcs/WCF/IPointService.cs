@@ -8,8 +8,8 @@ namespace Parcs.WCF
     public interface IPointService
     {
         [OperationContract]
-        Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space);
+        Task StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space);
         [OperationContract]
-        Task<bool> SendAsync(Channel from, Channel to, byte[] data); 
+        Task SendAsync(Channel from, Channel to, byte[] data, string type); 
     }
 }

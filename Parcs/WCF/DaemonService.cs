@@ -57,9 +57,6 @@ namespace Parcs.WCF
             var controlSpace = controlSpaces.FirstOrDefault(x => x.ID == cs.ID);
             if (controlSpace == null)
             {
-               /* controlSpace = new ControlSpace(cs.Name, cs.DaemonAdresses);
-                controlSpace.ID = cs.ID;
-                controlSpace.PointDirectory = cs.PointDirectory;*/
                 controlSpace = cs;
                 controlSpaces.Add(cs);
             }
@@ -84,16 +81,20 @@ namespace Parcs.WCF
             }
             return null;
         }
-        public Channel CreatePoint(string Name, ChannelType channelType, ControlSpace controlSpace)
+        public async Task<Channel> CreatePointAsync(string Name, ChannelType channelType, ControlSpace controlSpace)
         {
             var cs = GetOrCreateControlSpace(controlSpace);
             Guid newPointGuid = Guid.NewGuid();
-            PointService.Points.Add(newPointGuid, new PointInfo(cs));
+            var pointInfo = new PointInfo(cs);
+
+            PointService.Points.Add(newPointGuid, pointInfo);
+
+
             Channel channel = new Channel(Name, channelType, IP, Port + 1, newPointGuid);
             cs.ChannelsOnCurrentDaemon.Add(channel);
             return channel;
         }
-        public bool DestroyControlSpace(ControlSpace data)
+        public async Task DestroyControlSpaceAsync(ControlSpace data)
         {
             var cs = GetOrCreateControlSpace(data);
             List<Guid> points = new List<Guid>();
@@ -113,9 +114,8 @@ namespace Parcs.WCF
                 points.Remove(item);
                 PointService.Points.Remove(item);
             }
-            return true;
         }
-        public bool SendFile(FileTransferData data)
+        public async Task SendFileAsync(FileTransferData data)
         {
             var cs = GetOrCreateControlSpace(data.ControlSpace);
             string futureFilePath = $"{(string.IsNullOrWhiteSpace(data.ControlSpace.Name) ? data.ControlSpace.ID.ToString() : data.ControlSpace.Name)}/{((data.Path != null) ? data.Path.Trim('/') + "/" : "")}";
@@ -127,13 +127,12 @@ namespace Parcs.WCF
                 if (data.Hash == FileChecksum.Calculate(FullFilename))
                 {
                     Console.WriteLine($"File {data.Path}\\{data.FileName} already exist");
-                    return true;
+                    return;
                 }
             }
             Directory.CreateDirectory(futureFilePath);
             File.WriteAllBytes(FullFilename, data.FileData);
             Console.WriteLine($"{data.Path}\\{data.FileName} transfered");
-            return true;
         }
     }
 }

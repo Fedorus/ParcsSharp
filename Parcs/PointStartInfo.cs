@@ -29,14 +29,6 @@ namespace Parcs
             AssemblyName = func.Method.Module.ToString();
             IsStatic = func.Method.IsStatic;
         }
-        //
-        public PointStartInfo(Action<PointInfo> func)
-        {
-            NamespaceAndClass = func.Method.ReflectedType.FullName;
-            MethodName = func.Method.Name;
-            AssemblyName = func.Method.Module.ToString();
-            IsStatic = func.Method.IsStatic;
-        }
         /*
         [DataMember]
         private Dictionary<Type, object> _dict { get; set; } = new Dictionary<Type, object>();

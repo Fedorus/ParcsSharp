@@ -21,5 +21,24 @@ namespace Parcs
             this.PointID = pointID;
             this.Port = port;
         }
+        public override bool Equals(object obj)
+        {
+            if (obj == null || GetType() != obj.GetType())
+                return false;
+            var item = obj as Channel;
+            if (item!=null)
+            {
+                return PointID == item.PointID;
+            }
+            return false;
+        }
+        public static bool operator ==(Channel b1, Channel b2)
+        {
+            return b1?.PointID == b2?.PointID;
+        }
+        public static bool operator !=(Channel x, Channel y)
+        {
+            return !(x == y);
+        }
     }
 }

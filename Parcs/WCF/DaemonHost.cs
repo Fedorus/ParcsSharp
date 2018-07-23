@@ -10,7 +10,7 @@ namespace Parcs.WCF
     public class DaemonHost
     {
         ServiceHost _host;
-        DaemonService _service;
+        internal DaemonService _service;
         public DaemonHost()
         {
             _service = new DaemonService();

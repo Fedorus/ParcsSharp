@@ -43,23 +43,18 @@ namespace Parcs
                 // AddingFiles to CS (every daemon)
                 {
                     await cs.AddFileAsync("");
-                    cs.AddFile("");
                     await cs.AddDirectoryAsync("");
-                    cs.AddDirectory("");
                 }
 
                 // Work with Points
                 {
-                    IPoint point1 = await cs.CreatePointAsync();
-                    point1 = cs.CreatePoint();
-                    IPoint point2 = await cs.CreatePointAsync("Name", PointType.Any, ChannelType.TCP);
-                    point2 = cs.CreatePoint("Name", PointType.Any, ChannelType.TCP);
+                    Point point1 = await cs.CreatePointAsync();
+                    Point point2 = await cs.CreatePointAsync("Name", PointType.Any, ChannelType.TCP);
                     Channel info = point1.Channel; //Channel
                     // Point operations
                     {
                         //GetCurrent Daemon
                         Daemon daemon = await point1.GetDaemonAsync();
-                        daemon = point1.GetDaemon();
 
                        // await point1.AddChannelAsync(new Channel("Uri/name", new[] { ChannelType.TCP }, new Uri(""), Guid.NewGuid()));
                       //  point1.AddChannel(new Channel("Uri/name", new[] { ChannelType.TCP }, new Uri(""), Guid.NewGuid()));
@@ -67,35 +62,27 @@ namespace Parcs
                         { }
 
                         //Data transfer
-                        bool sended = point1.Send(new int());//json/bson/XML serialization to byte array
-                        sended = await point1.SendAsync(new int());
+                        await point1.SendAsync(42);//json/bson/XML serialization to byte array
 
-                        int data = point2.Get<int>(); // deserialize T from json/bson/XML
-                        data = await point2.GetAsync<int>();
+                        int data = await point2.GetAsync<int>(); // deserialize T from json/bson/XML
+
                         // Functioning
                         await point1.CancelAsync();
-                        point1.Cancel();
 
-                         await point1.RunAsync(new PointStartInfo(AsyncPointMethodExample)); // at this stage point service may contain channels to other points
-                        point1.Run(new PointStartInfo((Action<PointInfo>)VoidPointMethod));
+                        await point1.RunAsync(new PointStartInfo(AsyncPointMethodExample)); // at this stage point service may contain channels to other points
 
                         await point1.StopAsync();
-                        point1.Stop();
                     }
                 }
             }
         }
-        public static void VoidPointMethod(PointInfo info)
-        {
-
-        }
         public static async Task AsyncPointMethodExample(PointInfo currentPointInfo)
         {
-            IPoint currentPoint = currentPointInfo.CurrentPoint;
-            IPoint parentPoint = currentPointInfo.ParentPoint;
+            Point currentPoint = currentPointInfo.CurrentPoint;
+            Point parentPoint = currentPointInfo.ParentPoint;
             ControlSpace cs = currentPointInfo.CurrentControlSpace;
             //
-            IPoint otherPoint = currentPointInfo.GetPoint("Getting point by channel name");
+            Point otherPoint = currentPointInfo.GetPoint("Getting point by channel name");
            // otherPoint = currentPointInfo.GetPoint(new Channel("", ChannelType.TCP));// at what stage it should contain something?
             IEnumerable<Channel> allChannels = currentPointInfo.GetChannels();
             await otherPoint.CancelAsync();

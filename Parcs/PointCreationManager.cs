@@ -14,10 +14,5 @@ namespace Parcs
         {
             return daemons[rand.Next(daemons.Count)];
         }
-
-        public virtual async Task<Daemon> ChooseDaemonAsync(List<Daemon> daemons)
-        {
-            return daemons[rand.Next(daemons.Count)];
-        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,14 +9,15 @@ using System.Threading.Tasks;
 namespace Parcs.WCF
 {
     [ServiceContract]
-    public interface IDaemonService
+    public interface IDaemonService 
     {
-        string Address { get; }
         [OperationContract]
-        Channel CreatePoint(string Name, ChannelType channelType, ControlSpace controlSpace);
+        Task<Channel> CreatePointAsync(string Name, ChannelType channelType, ControlSpace controlSpaceData);
+
         [OperationContract]
-        bool DestroyControlSpace(ControlSpace data);
+        Task DestroyControlSpaceAsync(ControlSpace data);
+
         [OperationContract]
-        bool SendFile(FileTransferData data);
+        Task SendFileAsync(FileTransferData data);
     }
 }

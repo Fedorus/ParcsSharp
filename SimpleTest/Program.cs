@@ -14,23 +14,23 @@ namespace SimpleTest
 {
     class Program
     {
-        static async Task Main(string[] args)
+        public static async Task Main(string[] args)
         {
             //Console.ReadKey();
             ControlSpace controlSpace = new ControlSpace("Works"); //, "net.tcp://192.168.0.101:666"
             Console.WriteLine();//controlSpace.daemons[0].Name
             
-            var point = controlSpace.CreatePoint();
+            var point = await controlSpace.CreatePointAsync();
 
             await controlSpace.AddDirectoryAsync(Directory.GetCurrentDirectory(), false);
 
-            point.Run(new PointStartInfo(Program.Run));
-            point.Send(10);
+            point.RunAsync(new PointStartInfo(Program.Run));
+            await point.SendAsync(10);
             Console.WriteLine();
             Console.ReadKey();
         }
 
-        public static void Run(PointInfo info)
+        public async static Task Run(PointInfo info)
         {
             Console.Clear();
             Console.WriteLine(info.CurrentControlSpace.ID);
@@ -41,12 +41,12 @@ namespace SimpleTest
             {
                 Console.WriteLine("Yes it does");
             }
-            var subPoint = info.CurrentControlSpace.CreatePoint();
-            subPoint.Run(new PointStartInfo(Run2));
+            var subPoint = await info.CurrentControlSpace.CreatePointAsync();
+            subPoint.RunAsync(new PointStartInfo(Run2));
             
         }
 
-        public static void Run2(PointInfo info)
+        public static async Task Run2(PointInfo info)
         {
             Console.WriteLine("I`m ALIVE!!!!2222222");
         }

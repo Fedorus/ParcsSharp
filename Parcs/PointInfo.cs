@@ -8,9 +8,13 @@ namespace Parcs
 {
     public class PointInfo
     {
-        public IPoint CurrentPoint { get; internal set; }
+        internal Point _currentPoint;
+        public Point CurrentPoint
+        {
+            get => _currentPoint;
+        }
         public ControlSpace CurrentControlSpace { get; internal set; }
-        public IPoint ParentPoint { get; internal set; }
+        public Point ParentPoint { get; internal set; }
         internal Thread PointThread { get; set; }
 
         internal PointInfo(ControlSpace spaceData)
@@ -18,7 +22,7 @@ namespace Parcs
             CurrentControlSpace = spaceData;
         }
 
-        public IPoint GetPoint(Channel channel)
+        public Point GetPoint(Channel channel)
         {
             throw new NotImplementedException();
         }
@@ -28,7 +32,7 @@ namespace Parcs
             throw new NotImplementedException();
         }
 
-        public IPoint GetPoint(string v)
+        public Point GetPoint(string v)
         {
             throw new NotImplementedException();
         }

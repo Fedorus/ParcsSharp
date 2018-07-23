@@ -43,7 +43,8 @@
     <Compile Include="ChannelType.cs" />
     <Compile Include="ControlSpace.cs" />
     <Compile Include="Daemon.cs" />
-    <Compile Include="IPoint.cs" />
+    <Compile Include="DataObjectsContainer.cs" />
+    <Compile Include="DataTransferObject.cs" />
     <Compile Include="PointCreationManager.cs" />
     <Compile Include="PointInfo.cs" />
     <Compile Include="PointStartInfo.cs" />
@@ -54,10 +55,9 @@
     <Compile Include="WCF\DaemonService.cs" />
     <Compile Include="WCF\FileTransferData.cs" />
     <Compile Include="WCF\IDaemonService.cs" />
-    <Compile Include="WCF\IDaemonServiceAsync.cs" />
     <Compile Include="WCF\IPointService.cs" />
     <Compile Include="WCF\Cheats\IPAddressReceive.cs" />
-    <Compile Include="WCF\Point.cs" />
+    <Compile Include="Point.cs" />
     <Compile Include="WCF\PointService.cs" />
   </ItemGroup>
   <ItemGroup>

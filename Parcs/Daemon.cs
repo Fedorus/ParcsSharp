@@ -7,13 +7,13 @@ namespace Parcs
 {
     public class Daemon
     {
-        private readonly IDaemonServiceAsync daemon;
+        private readonly IDaemonService daemon;
         private readonly ControlSpace LinkedControlSpace;
         internal Daemon(string daemonIPAndPort, ControlSpace space)
         {
             LinkedControlSpace = space;
             Name = daemonIPAndPort;
-            daemon = ChannelFactory<IDaemonServiceAsync>.CreateChannel(new NetTcpBinding() {
+            daemon = ChannelFactory<IDaemonService>.CreateChannel(new NetTcpBinding() {
                 MaxReceivedMessageSize = 1024 * 1024 * 64,
                 MaxBufferSize = 1024 * 1024 * 64,
                 SendTimeout = TimeSpan.FromHours(1),
@@ -23,35 +23,19 @@ namespace Parcs
 
         public string Name { get;}
 
-        internal async Task<IPoint> CreatePointAsync(string name, ChannelType channelType)
+
+        internal async Task<Point> CreatePointAsync(string name, ChannelType channelType)
         {
             var channel = await daemon.CreatePointAsync(name, channelType, LinkedControlSpace);
-            return new Point(channel, LinkedControlSpace.CurrentPoint?.Channel, LinkedControlSpace);
+            var point = new Point(channel, LinkedControlSpace.CurrentPoint?.Channel, LinkedControlSpace);
+            return point;
         }
 
-        internal IPoint CreatePoint(string name, ChannelType channelType)
+        internal Task<Point> CreatePointAsync()
         {
-            var channel = daemon.CreatePoint(name, channelType, LinkedControlSpace);
-            return new Point(channel, LinkedControlSpace.CurrentPoint?.Channel, LinkedControlSpace);
+            return this.CreatePointAsync("", ChannelType.Any);
         }
-
-        internal IPoint CreatePoint()
-        {
-            Channel channel = daemon.CreatePoint("", ChannelType.Any, LinkedControlSpace);
-            return new Point(channel, LinkedControlSpace.CurrentPoint?.Channel, LinkedControlSpace);
-        }
-
-        public async Task<IPoint> CreatePointAsync()
-        {
-            var channel = await daemon.CreatePointAsync("", ChannelType.Any, LinkedControlSpace);
-            return new Point(channel, LinkedControlSpace.CurrentPoint?.Channel, LinkedControlSpace);
-        }
-
-        internal void SendFile(FileTransferData data)
-        {
-            daemon.SendFile(data);
-        }
-        public Task<bool> SendFileAsync(FileTransferData data)
+        public Task SendFileAsync(FileTransferData data)
         {
            return daemon.SendFileAsync(data);
         }

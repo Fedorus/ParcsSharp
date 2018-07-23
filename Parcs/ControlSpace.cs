@@ -4,18 +4,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Parcs
 {
     [DataContract]
-    public class ControlSpace : IDisposable
+    public class ControlSpace
     {
         /// <summary>
         /// Human description of process context
         /// </summary>
         [DataMember]
         public string Name { get; internal set; }
+        /// <summary>
+        /// Control Space UID
+        /// </summary>
         [DataMember]
         public Guid ID { get; internal set; }
         [DataMember]
@@ -29,15 +33,18 @@ namespace Parcs
         DaemonHost hostedDaemon;
         [DataMember]
         PointCreationManager Creator { get; set; } = new PointCreationManager();
-        public IPoint CurrentPoint { get; set; }
+        public Point CurrentPoint { get; set; }
+
         #region Constructors
-        
         public ControlSpace(string name, int port = 666) : this(name, false)
         {
             hostedDaemon = new DaemonHost();
             hostedDaemon.Start(port);
             AddDaemons(hostedDaemon.Address);
-            CurrentPoint = Daemons[0].CreatePoint("Main", ChannelType.Any);
+            CurrentPoint = Daemons[0].CreatePointAsync("Main", ChannelType.Any).GetAwaiter().GetResult();
+            CurrentPoint.RunAsync(null).GetAwaiter().GetResult();
+            //Thread.Sleep(5000);
+            CurrentPoint = hostedDaemon._service.PointService.Points[CurrentPoint.Channel.PointID].CurrentPoint;
         }
         private ControlSpace(string name, bool NotHost)
         {
@@ -45,13 +52,11 @@ namespace Parcs
             ID = Guid.NewGuid();
             PointDirectory = PointDirectory.TrimEnd('\\','/')+"\\" + name+"\\";
         }
-
         public ControlSpace(string name, string daemonUri) : this(name, true)
         {
             AddDaemons(daemonUri);
-            CurrentPoint = Daemons[0].CreatePoint("Main", ChannelType.Any);
+            CurrentPoint = Daemons[0].CreatePointAsync("Main", ChannelType.Any).GetAwaiter().GetResult();
         }
-        
         public ControlSpace(string name, List<string> list) : this(name, true)
         {
             AddDaemons(list.ToArray());
@@ -60,7 +65,7 @@ namespace Parcs
             {
                 daemon = Daemons[0];
             }
-            CurrentPoint = daemon.CreatePoint("Main", ChannelType.Any);
+            CurrentPoint = daemon.CreatePointAsync("Main", ChannelType.Any).GetAwaiter().GetResult();
         }
         #endregion
 
@@ -84,10 +89,6 @@ namespace Parcs
                 Daemons.Add(new Daemon(items[i], this));
             }
             DaemonAdresses.AddRange(items);
-        }
-        public void AddFile(string file, string directory = "")
-        {
-            AddFileAsync(file, directory).GetAwaiter().OnCompleted(()=> { return; });
         }
         public async Task AddFileAsync(string file, string directory = "")
         {
@@ -132,12 +133,6 @@ namespace Parcs
             }
         }
 
-
-
-        public void AddDirectory(string directory, bool recursive = false)
-        {
-            AddDirectoryAsync(directory, recursive).Wait();
-        }
         private async Task AddDirectoryRecursiveAsync(string directory, string startingDirecory)
         {
             var directories = Directory.GetDirectories(directory);
@@ -148,71 +143,19 @@ namespace Parcs
             }
             await Task.WhenAll(RecursiveTasks);
             var files = Directory.GetFiles(directory);
-            Parallel.For(0, files.Length, (i) => { AddFile(files[i], directory.Remove(0, startingDirecory.Length)); });
+            Parallel.For(0, files.Length, async (i) => { await AddFileAsync(files[i], directory.Remove(0, startingDirecory.Length)); });
         }
 
-        public async Task<IPoint> CreatePointAsync()
+        public async Task<Point> CreatePointAsync()
         {
-            Daemon daemonForPoint = await Creator.ChooseDaemonAsync(Daemons);
+            Daemon daemonForPoint = Creator.ChooseDaemon(Daemons);
             return await daemonForPoint.CreatePointAsync();
         }
 
-        public IPoint CreatePoint()
+        public async Task<Point> CreatePointAsync(string Name, PointType pointType, ChannelType channelType)
         {
             Daemon daemonForPoint = Creator.ChooseDaemon(Daemons);
-            return daemonForPoint.CreatePoint();
-        }
-
-        public async Task<IPoint> CreatePointAsync(string Name, PointType pointType, ChannelType channelType)
-        {
-            Daemon daemonForPoint = await Creator.ChooseDaemonAsync(Daemons);
             return await daemonForPoint.CreatePointAsync(Name, channelType);
         }
-
-        public IPoint CreatePoint(string Name, PointType pointType, ChannelType channelType)
-        {
-            Daemon daemonForPoint = Creator.ChooseDaemon(Daemons);
-            return daemonForPoint.CreatePoint(Name, channelType);
-        }
-
-
-        #region IDisposable Support
-        private bool disposedValue = false; 
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    if (hostedDaemon!=null) // if we created daemon - stop it
-                    {
-                        hostedDaemon.Stop();
-                    }
-                    // TODO: освободить управляемое состояние (управляемые объекты).
-                }
-                // TODO: освободить неуправляемые ресурсы (неуправляемые объекты) и переопределить ниже метод завершения.
-                // TODO: задать большим полям значение NULL.
-                disposedValue = true;
-            }
-        }
-
-        // TODO: переопределить метод завершения, только если Dispose(bool disposing) выше включает код для освобождения неуправляемых ресурсов.
-        // ~ControlSpace() {
-        //   // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
-        //   Dispose(false);
-        // }
-
-        // Этот код добавлен для правильной реализации шаблона высвобождаемого класса.
-        public void Dispose()
-        {
-            // Не изменяйте этот код. Разместите код очистки выше, в методе Dispose(bool disposing).
-            Dispose(true);
-            // TODO: раскомментировать следующую строку, если метод завершения переопределен выше.
-            // GC.SuppressFinalize(this);
-        }
-
-
-        #endregion
     }
 }
