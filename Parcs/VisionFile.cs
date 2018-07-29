@@ -84,7 +84,7 @@ namespace Parcs
             //
             Point otherPoint = currentPointInfo.GetPoint("Getting point by channel name");
            // otherPoint = currentPointInfo.GetPoint(new Channel("", ChannelType.TCP));// at what stage it should contain something?
-            IEnumerable<Channel> allChannels = currentPointInfo.GetChannels();
+            IEnumerable<Channel> allChannels = currentPointInfo.Channels;
             await otherPoint.CancelAsync();
             foreach (var item in allChannels)
             {

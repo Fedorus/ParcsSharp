@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading;
 using System.Reflection;
@@ -13,6 +14,7 @@ namespace Parcs
         {
             get => _currentPoint;
         }
+        public List<Channel> Channels { get; set; } = new List<Channel>();
         public ControlSpace CurrentControlSpace { get; internal set; }
         public Point ParentPoint { get; internal set; }
         internal Thread PointThread { get; set; }
@@ -24,17 +26,14 @@ namespace Parcs
 
         public Point GetPoint(Channel channel)
         {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<Channel> GetChannels()
-        {
-            throw new NotImplementedException();
+            if (channel==null)
+            { throw new NullReferenceException("channel == null"); }
+            return new Point(channel, CurrentPoint.Channel, CurrentControlSpace);
         }
 
         public Point GetPoint(string v)
         {
-            throw new NotImplementedException();
+            return new Point(Channels.FirstOrDefault(x => x.Name == v), CurrentPoint.Channel, CurrentControlSpace);
         }
     }
 }

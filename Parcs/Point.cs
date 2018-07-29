@@ -46,7 +46,7 @@ namespace Parcs
         }
         public Task AddChannelAsync(Channel channel)
         {
-            throw new System.NotImplementedException();
+            return _PointServiceClient.AddChannelAsync(Channel, channel);
         }
 
         public Task CancelAsync()
@@ -72,21 +72,6 @@ namespace Parcs
             {
                 if (_controlSpace.CurrentPoint.Data != null)
                 {
-                    foreach (var item in _controlSpace.CurrentPoint.Data._items)
-                    {
-                        if (item.From == Channel)
-                        {
-                            Console.WriteLine("Equal");
-                        }
-                        if (item.To == _pointThatUsingThisPoint)
-                        {
-                            Console.WriteLine("Equal2");
-                        }
-                        if (item.Type== typeof(T).ToString())
-                        {
-                            Console.WriteLine("Equal3");
-                        }
-                    }
                     var result = _controlSpace.CurrentPoint.Data._items.Find(x =>
                         x.From == Channel &&
                         x.To == _pointThatUsingThisPoint &&
@@ -114,9 +99,10 @@ namespace Parcs
             await _PointServiceClient.StartAsync(_pointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
         }
 
-        public Task SendAsync<T>(T t)
+        public Task<bool> SendAsync<T>(T t)
         {
-            return _PointServiceClient.SendAsync(_pointThatUsingThisPoint, Channel, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(t)), t.GetType().ToString());
+            return _PointServiceClient.SendAsync(_pointThatUsingThisPoint, 
+                Channel, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(t)), t.GetType().ToString());
         }
         public Task StopAsync()
         {

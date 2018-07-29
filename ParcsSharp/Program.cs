@@ -11,33 +11,35 @@ namespace ParcsSharp
     {
         public static async Task Main()
         {
-            var cs = new ControlSpace("Test");
+            using (ControlSpace cs = new ControlSpace("Example"))
             {
-                var firstPoint = await cs.CreatePointAsync("1", PointType.Local, ChannelType.NamedPipe);
-                await cs.AddDirectoryAsync(Directory.GetCurrentDirectory(), false);
-                // await cs.AddDirectoryAsync(Directory.GetCurrentDirectory(), false);
-                Console.WriteLine("SENDER: " + cs.CurrentPoint.Channel.PointID);
-                Console.WriteLine("RECEIVER: " + firstPoint.Channel.PointID);
-                await firstPoint.RunAsync(new PointStartInfo(Tests.TestParcsPoint));
-                await firstPoint.SendAsync(42);
-                var res= await Task.WhenAll(firstPoint.GetAsync<string>(), firstPoint.GetAsync<string>());
-                Console.WriteLine(res[0]);
-                Console.WriteLine(res[1]);
+                await cs.AddDirectoryAsync(Directory.GetCurrentDirectory());
+                var points = new Point[6];
+                var tasks = new Task<string>[6];
+                for (int i = 0; i < 6; i++)
+                {
+                    points[i] = await cs.CreatePointAsync(i.ToString(), PointType.Remote, ChannelType.TCP);
+                    await points[i].AddChannelAsync(cs.CurrentPoint.Channel);
+                    await points[i].RunAsync(new PointStartInfo(Tests.TestParcsPoints));
+                    await points[i].SendAsync(i);
+                    tasks[i] =  points[i].GetAsync<string>();
+                }
+                await Task.WhenAll(tasks);
+                foreach (var item in tasks)
+                {
+                    Console.WriteLine(item.Result);
+                }
+                Console.WriteLine("Done");
+                Console.ReadKey();
             }
-            Console.ReadKey();
         }
-
         public class Tests
         {
-            public async static Task TestParcsPoint(PointInfo info)
+            public async static Task TestParcsPoints(PointInfo info)
             {
-                await Task.Delay(5000);
                 int sended = await info.ParentPoint.GetAsync<int>();
-                Console.WriteLine("received: "+sended);
-                await info.ParentPoint.SendAsync("666");
-                await Task.Delay(10000);
-                await info.ParentPoint.SendAsync("667");
-                Console.ReadKey();
+                await info.GetPoint(info.Channels[0]).SendAsync(sended.ToString()).ConfigureAwait(true) ;
+                Console.WriteLine($"Point {sended} done");
             }
         }
     }

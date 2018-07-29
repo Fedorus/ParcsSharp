@@ -14,7 +14,18 @@ namespace Parcs.WCF
     {
         public Dictionary<Guid, PointInfo> Points { get; set; } = new Dictionary<Guid, PointInfo>();
 
-        public async Task SendAsync(Channel from, Channel to, byte[] data, string type)
+        public async Task<bool> AddChannelAsync(Channel to, Channel channel)
+        {
+            var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : null;
+            if (pointData == null)
+            {
+                throw new Exception("Point not found");
+            }
+            pointData.Channels.Add(channel);
+            return true;
+        }
+
+        public async Task<bool> SendAsync(Channel from, Channel to, byte[] data, string type)
         {
             var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : null;
             if (pointData == null)
@@ -26,10 +37,11 @@ namespace Parcs.WCF
                 pointData.CurrentPoint.Data.Add(new DataTransferObject()
                 { Data = Encoding.UTF8.GetString(data), From = from, To = to, Time = DateTime.Now, Type = type });
             }
+            return true;
         }
         
 
-        public async Task StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
+        public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
         {
             var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : null;
             if (pointData == null)
@@ -45,9 +57,7 @@ namespace Parcs.WCF
             pointData.ParentPoint = new Point(from, to, space);
             
             if (info == null)
-            {
-
-            }
+            {}
             else
             {
                 object instance = null;
@@ -66,7 +76,7 @@ namespace Parcs.WCF
                 pointData.PointThread = new System.Threading.Thread(() => { method.Invoke(instance, new object[] { pointData }); });
                 pointData.PointThread.Start();
             }
-            
+            return true;
         }
     }
 }

@@ -10,13 +10,16 @@ using System.Threading.Tasks;
 namespace Parcs
 {
     [DataContract]
-    public class ControlSpace
+    public class ControlSpace : IDisposable
     {
         /// <summary>
         /// Human description of process context
         /// </summary>
         [DataMember]
         public string Name { get; internal set; }
+
+
+
         /// <summary>
         /// Control Space UID
         /// </summary>
@@ -41,7 +44,7 @@ namespace Parcs
             hostedDaemon = new DaemonHost();
             hostedDaemon.Start(port);
             AddDaemons(hostedDaemon.Address);
-            CurrentPoint = Daemons[0].CreatePointAsync("Main", ChannelType.Any).GetAwaiter().GetResult();
+            CurrentPoint = Daemons[0].CreatePointAsync("Main", ChannelType.TCP).GetAwaiter().GetResult();
             CurrentPoint.RunAsync(null).GetAwaiter().GetResult();
             //Thread.Sleep(5000);
             CurrentPoint = hostedDaemon._service.PointService.Points[CurrentPoint.Channel.PointID].CurrentPoint;
@@ -151,11 +154,50 @@ namespace Parcs
             Daemon daemonForPoint = Creator.ChooseDaemon(Daemons);
             return await daemonForPoint.CreatePointAsync();
         }
-
+        public  Task<Point> CreatePointAsync(string name)
+        {
+            return CreatePointAsync(name, PointType.Any, ChannelType.Any);
+        }
         public async Task<Point> CreatePointAsync(string Name, PointType pointType, ChannelType channelType)
         {
             Daemon daemonForPoint = Creator.ChooseDaemon(Daemons);
             return await daemonForPoint.CreatePointAsync(Name, channelType);
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    // TODO: dispose managed state (managed objects).
+                }
+
+                // TODO: free unmanaged resources (unmanaged objects) and override a finalizer below.
+                // TODO: set large fields to null.
+
+                disposedValue = true;
+            }
+        }
+
+        // TODO: override a finalizer only if Dispose(bool disposing) above has code to free unmanaged resources.
+        // ~ControlSpace() {
+        //   // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+        //   Dispose(false);
+        // }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // TODO: uncomment the following line if the finalizer is overridden above.
+            // GC.SuppressFinalize(this);
+        }
+        #endregion
+
     }
 }

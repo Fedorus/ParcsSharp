@@ -33,7 +33,7 @@ namespace Parcs
 
         internal Task<Point> CreatePointAsync()
         {
-            return this.CreatePointAsync("", ChannelType.Any);
+            return CreatePointAsync("", ChannelType.Any);
         }
         public Task SendFileAsync(FileTransferData data)
         {
