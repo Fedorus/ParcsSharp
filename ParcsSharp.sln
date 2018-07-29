@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parcs", "Parcs\Parcs.csproj
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{B8A0691E-8F35-4A10-A923-7F2FF8E9FF47}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTest", "SimpleTest\SimpleTest.csproj", "{C0A939D2-5C22-4BCF-8EF7-574ADB1F9A4F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaemonHost", "DaemonHost\DaemonHost.csproj", "{C99C176B-7193-40DC-96EA-49032B292BF4}"
 EndProject
 Global
@@ -27,10 +25,6 @@ Global
 		{566D39E1-2F1D-47E4-9B45-2CFF51636B51}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{566D39E1-2F1D-47E4-9B45-2CFF51636B51}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{566D39E1-2F1D-47E4-9B45-2CFF51636B51}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C0A939D2-5C22-4BCF-8EF7-574ADB1F9A4F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C0A939D2-5C22-4BCF-8EF7-574ADB1F9A4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C0A939D2-5C22-4BCF-8EF7-574ADB1F9A4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C0A939D2-5C22-4BCF-8EF7-574ADB1F9A4F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C99C176B-7193-40DC-96EA-49032B292BF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C99C176B-7193-40DC-96EA-49032B292BF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C99C176B-7193-40DC-96EA-49032B292BF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -40,7 +34,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C0A939D2-5C22-4BCF-8EF7-574ADB1F9A4F} = {B8A0691E-8F35-4A10-A923-7F2FF8E9FF47}
 		{C99C176B-7193-40DC-96EA-49032B292BF4} = {B8A0691E-8F35-4A10-A923-7F2FF8E9FF47}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution

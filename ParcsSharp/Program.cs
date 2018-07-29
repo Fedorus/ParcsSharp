@@ -38,7 +38,8 @@ namespace ParcsSharp
             public async static Task TestParcsPoints(PointInfo info)
             {
                 int sended = await info.ParentPoint.GetAsync<int>();
-                await info.GetPoint(info.Channels[0]).SendAsync(sended.ToString()).ConfigureAwait(true) ;
+                await info.GetPoint(info.Channels[0]).SendAsync(sended.ToString()).ConfigureAwait(false);
+                await Task.Delay(2000);
                 Console.WriteLine($"Point {sended} done");
             }
         }
