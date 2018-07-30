@@ -8,7 +8,6 @@ namespace Parcs
 {
     class VisionFile
     {
-        
         public async Task GeneralIdea()
         {
             // CS constructors

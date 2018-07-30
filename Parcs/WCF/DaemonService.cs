@@ -14,7 +14,6 @@ namespace Parcs.WCF
         private string IP { get; set; }
         private int Port { get; set; }
         public string Address => $"net.tcp://{IP}:{Port}/";
-
         public DaemonService(int port = 666)
         {
             Port = port;
@@ -85,11 +84,10 @@ namespace Parcs.WCF
         {
             var cs = GetOrCreateControlSpace(controlSpace);
             Guid newPointGuid = Guid.NewGuid();
+
             var pointInfo = new PointInfo(cs);
-
             PointService.Points.Add(newPointGuid, pointInfo);
-
-
+            
             Channel channel = new Channel(Name, channelType, IP, Port + 1, newPointGuid);
             cs.ChannelsOnCurrentDaemon.Add(channel);
             return channel;
@@ -126,13 +124,17 @@ namespace Parcs.WCF
             {
                 if (data.Hash == FileChecksum.Calculate(FullFilename))
                 {
+#if DEBUG
                     Console.WriteLine($"File {data.Path}\\{data.FileName} already exist");
+#endif
                     return;
                 }
             }
             Directory.CreateDirectory(futureFilePath);
             File.WriteAllBytes(FullFilename, data.FileData);
+#if DEBUG
             Console.WriteLine($"{data.Path}\\{data.FileName} transfered");
+#endif
         }
     }
 }

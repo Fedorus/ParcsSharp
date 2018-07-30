@@ -43,11 +43,8 @@ namespace Parcs.WCF
 
         public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
         {
-            var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : null;
-            if (pointData == null)
-            {
-                throw new Exception("Point not found");
-            }
+            var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : throw new Exception("Point not found"); 
+
             pointData.CurrentControlSpace = space;
             pointData.CurrentControlSpace.CheckDaemons();
             var currentPoint = new Point(to, to, space);
@@ -73,8 +70,14 @@ namespace Parcs.WCF
                     instance = assembly.CreateInstance(info.NamespaceAndClass);
                     method = instance.GetType().GetMethod(info.MethodName);
                 }
-                pointData.PointThread = new System.Threading.Thread(() => { method.Invoke(instance, new object[] { pointData }); });
-                pointData.PointThread.Start();
+                pointData.PointTask = Task.Factory.StartNew(
+                    async () => {
+                        await ((Task)method.Invoke(instance, new object[] { pointData })).ConfigureAwait(false);
+                        Console.WriteLine("point task done");
+                    }
+                    , TaskCreationOptions.LongRunning);
+                //pointData.PointThread = new System.Threading.Thread(() => { method.Invoke(instance, new object[] { pointData }); });
+               // pointData.PointThread.Start();
             }
             return true;
         }

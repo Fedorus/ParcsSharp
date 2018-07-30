@@ -5,12 +5,11 @@ namespace Parcs
     [DataContract]
     public enum ChannelType
     {
-        [EnumMemberAttribute]
+        [EnumMember]
         Any = 0,
-
-        [EnumMemberAttribute]
+        [EnumMember]
         TCP,
-        [EnumMemberAttribute]
+        [EnumMember]
         NamedPipe
     }
 }

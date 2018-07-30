@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Reflection;
 using Parcs.WCF;
+using System.Threading.Tasks;
 
 namespace Parcs
 {
@@ -18,7 +19,7 @@ namespace Parcs
         public ControlSpace CurrentControlSpace { get; internal set; }
         public Point ParentPoint { get; internal set; }
         internal Thread PointThread { get; set; }
-
+        internal Task PointTask { get; set; }
         internal PointInfo(ControlSpace spaceData)
         {
             CurrentControlSpace = spaceData;
@@ -31,9 +32,9 @@ namespace Parcs
             return new Point(channel, CurrentPoint.Channel, CurrentControlSpace);
         }
 
-        public Point GetPoint(string v)
+        public Point GetPoint(string name)
         {
-            return new Point(Channels.FirstOrDefault(x => x.Name == v), CurrentPoint.Channel, CurrentControlSpace);
+            return new Point(Channels.FirstOrDefault(x => x.Name == name), CurrentPoint.Channel, CurrentControlSpace);
         }
     }
 }

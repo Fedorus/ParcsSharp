@@ -66,8 +66,10 @@ namespace Parcs
                     var returnValue = e.ReceivedItem;
                     e.ReceivedItem = null;
                     tcs.SetResult(JsonConvert.DeserializeObject<T>(returnValue.Data));
+                    return;
                 }
             }
+
             lock (_controlSpace.CurrentPoint.Data)
             {
                 if (_controlSpace.CurrentPoint.Data != null)
@@ -84,7 +86,7 @@ namespace Parcs
                 }
                 _controlSpace.CurrentPoint.Data.OnAdd += waitForresultEvent;
             }
-            T awaitedResultValue = await tcs.Task;
+            T awaitedResultValue = await tcs.Task.ConfigureAwait(true);
             _controlSpace.CurrentPoint.Data.OnAdd -= waitForresultEvent;
             return awaitedResultValue;
         }
@@ -93,12 +95,10 @@ namespace Parcs
         {
             throw new System.NotImplementedException();
         }
-
         public async Task RunAsync(PointStartInfo pointStartInfo)
         {
             await _PointServiceClient.StartAsync(_pointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
         }
-
         public Task<bool> SendAsync<T>(T t)
         {
             return _PointServiceClient.SendAsync(_pointThatUsingThisPoint, 

@@ -13,18 +13,20 @@ namespace ParcsSharp
         {
             using (ControlSpace cs = new ControlSpace("Example"))
             {
+                int N = 3;
                 await cs.AddDirectoryAsync(Directory.GetCurrentDirectory());
-                var points = new Point[6];
-                var tasks = new Task<string>[6];
-                for (int i = 0; i < 6; i++)
+                var points = new Point[N];
+                var tasks = new Task<string>[N];
+                for (int i = 0; i < N; i++)
                 {
                     points[i] = await cs.CreatePointAsync(i.ToString(), PointType.Remote, ChannelType.TCP);
                     await points[i].AddChannelAsync(cs.CurrentPoint.Channel);
                     await points[i].RunAsync(new PointStartInfo(Tests.TestParcsPoints));
-                    await points[i].SendAsync(i);
-                    tasks[i] =  points[i].GetAsync<string>();
+                    points[i].SendAsync(i);
+                    tasks[i] = points[i].GetAsync<string>();
                 }
-                await Task.WhenAll(tasks);
+                Task.WaitAll(tasks);
+                //await Task.WhenAll(tasks).ContinueWith((s)=>Console.WriteLine("Магия"));
                 foreach (var item in tasks)
                 {
                     Console.WriteLine(item.Result);
@@ -37,10 +39,8 @@ namespace ParcsSharp
         {
             public async static Task TestParcsPoints(PointInfo info)
             {
-                int sended = await info.ParentPoint.GetAsync<int>();
-                await info.GetPoint(info.Channels[0]).SendAsync(sended.ToString()).ConfigureAwait(false);
-                await Task.Delay(2000);
-                Console.WriteLine($"Point {sended} done");
+                await info.GetPoint(info.Channels[0]).SendAsync(info.CurrentPoint.Channel.Name).ConfigureAwait(false);
+                Console.WriteLine($"Point {info.CurrentPoint.Channel.Name} done");
             }
         }
     }

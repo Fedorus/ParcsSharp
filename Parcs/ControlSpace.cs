@@ -17,9 +17,7 @@ namespace Parcs
         /// </summary>
         [DataMember]
         public string Name { get; internal set; }
-
-
-
+        
         /// <summary>
         /// Control Space UID
         /// </summary>
@@ -33,42 +31,33 @@ namespace Parcs
         internal List<string> DaemonAdresses { get; set; } = new List<string>();
 
         public List<Daemon> Daemons { get; internal set; } = new List<Daemon>();
-        DaemonHost hostedDaemon;
+        public static DaemonHost hostedDaemon;
         [DataMember]
         PointCreationManager Creator { get; set; } = new PointCreationManager();
         public Point CurrentPoint { get; set; }
-
         #region Constructors
-        public ControlSpace(string name, int port = 666) : this(name, false)
-        {
-            hostedDaemon = new DaemonHost();
-            hostedDaemon.Start(port);
-            AddDaemons(hostedDaemon.Address);
-            CurrentPoint = Daemons[0].CreatePointAsync("Main", ChannelType.TCP).GetAwaiter().GetResult();
-            CurrentPoint.RunAsync(null).GetAwaiter().GetResult();
-            //Thread.Sleep(5000);
-            CurrentPoint = hostedDaemon._service.PointService.Points[CurrentPoint.Channel.PointID].CurrentPoint;
-        }
-        private ControlSpace(string name, bool NotHost)
+        public ControlSpace(string name, int port = 666) 
         {
             this.Name = name;
             ID = Guid.NewGuid();
             PointDirectory = PointDirectory.TrimEnd('\\','/')+"\\" + name+"\\";
+            if (hostedDaemon == null)
+            {
+                hostedDaemon = new DaemonHost();
+                hostedDaemon.Start(port);
+            }
+            AddDaemons(hostedDaemon.Address);
+            CurrentPoint = Daemons[0].CreatePointAsync("Main", ChannelType.Any).GetAwaiter().GetResult();
+            CurrentPoint.RunAsync(null).GetAwaiter().GetResult();
+            CurrentPoint = hostedDaemon._service.PointService.Points[CurrentPoint.Channel.PointID].CurrentPoint;
         }
-        public ControlSpace(string name, string daemonUri) : this(name, true)
+        public ControlSpace(string name, string daemonUri, int port = 666) : this(name, port)
         {
             AddDaemons(daemonUri);
-            CurrentPoint = Daemons[0].CreatePointAsync("Main", ChannelType.Any).GetAwaiter().GetResult();
         }
-        public ControlSpace(string name, List<string> list) : this(name, true)
+        public ControlSpace(string name, List<string> list, int port = 666) : this(name, port)
         {
             AddDaemons(list.ToArray());
-            var daemon = Daemons.Find(x => x.Name.Contains(IPAddressReceive.GetLocalIPAddress()));
-            if (daemon==null)
-            {
-                daemon = Daemons[0];
-            }
-            CurrentPoint = daemon.CreatePointAsync("Main", ChannelType.Any).GetAwaiter().GetResult();
         }
         #endregion
 
