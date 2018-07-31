@@ -31,7 +31,7 @@ namespace ParcsSharp
                 }
                 //Task.WaitAll(tasks); // Working
                 await Task.WhenAll(tasks); //not Working
-                //await Task.Delay(1000);
+                //await Task.Delay(1000); // but working with this
                 //await Task.WhenAll(tasks).ContinueWith((s)=>Console.WriteLine("Magic")); //Working o_O
                 foreach (var item in tasks)
                 {

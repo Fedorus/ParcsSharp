@@ -8,7 +8,7 @@ using Parcs.WCF.Cheats;
 
 namespace Parcs.WCF
 {
-    [ServiceBehavior(AutomaticSessionShutdown = false, InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true, ConcurrencyMode = ConcurrencyMode.Single)]
+    [ServiceBehavior(AutomaticSessionShutdown = false, InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true, ConcurrencyMode = ConcurrencyMode.Multiple)]
     public class DaemonService : IDaemonService
     {
         private string IP { get; set; }
