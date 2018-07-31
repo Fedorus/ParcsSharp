@@ -25,22 +25,22 @@ namespace Parcs
         public Guid ID { get; internal set; }
         [DataMember]
         internal List<Channel> ChannelsOnCurrentDaemon { get; set; } = new List<Channel>();
-        [DataMember]
-        public string PointDirectory { get; internal set; } = Directory.GetCurrentDirectory();
+        public string PointDirectory { get => $"{(string.IsNullOrWhiteSpace(Name) ? ID.ToString() : Name)}/"; } 
         [DataMember]
         internal List<string> DaemonAdresses { get; set; } = new List<string>();
-
         public List<Daemon> Daemons { get; internal set; } = new List<Daemon>();
         public static DaemonHost hostedDaemon;
         [DataMember]
         PointCreationManager Creator { get; set; } = new PointCreationManager();
-        public Point CurrentPoint { get; set; }
+        /// <summary>
+        /// Designed only for Main point.
+        /// </summary>
+        public Point CurrentPoint { get; internal set; }
         #region Constructors
         public ControlSpace(string name, int port = 666) 
         {
             this.Name = name;
             ID = Guid.NewGuid();
-            PointDirectory = PointDirectory.TrimEnd('\\','/')+"\\" + name+"\\";
             if (hostedDaemon == null)
             {
                 hostedDaemon = new DaemonHost();

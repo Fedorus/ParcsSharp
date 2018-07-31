@@ -48,10 +48,10 @@ namespace Parcs.WCF
             Console.WriteLine($"net.pipe://{IP}/{Port + 1}");
             Console.WriteLine($"net.tcp://{IP}:{Port + 1}");
         }
-        public List<ControlSpace> controlSpaces = new List<ControlSpace>();
+        //public List<ControlSpace> controlSpaces { get; set; } = new List<ControlSpace>();
         public ServiceHost host;
         public PointService PointService;
-        private ControlSpace GetOrCreateControlSpace(ControlSpace cs)
+      /*  private ControlSpace GetOrCreateControlSpace(ControlSpace cs)
         {
             var controlSpace = controlSpaces.FirstOrDefault(x => x.ID == cs.ID);
             if (controlSpace == null)
@@ -64,7 +64,7 @@ namespace Parcs.WCF
                 controlSpace.DaemonAdresses = cs.DaemonAdresses;
             }
             return controlSpace;
-        }
+        }*/
         private Uri MakeUri(ChannelType type)
         {
             switch (type)
@@ -82,27 +82,28 @@ namespace Parcs.WCF
         }
         public async Task<Channel> CreatePointAsync(string Name, ChannelType channelType, ControlSpace controlSpace)
         {
-            var cs = GetOrCreateControlSpace(controlSpace);
+           // var cs = GetOrCreateControlSpace(controlSpace);
             Guid newPointGuid = Guid.NewGuid();
 
-            var pointInfo = new PointInfo(cs);
+            var pointInfo = new PointInfo(controlSpace);
+
             PointService.Points.Add(newPointGuid, pointInfo);
             
             Channel channel = new Channel(Name, channelType, IP, Port + 1, newPointGuid);
-            cs.ChannelsOnCurrentDaemon.Add(channel);
+            //cs.ChannelsOnCurrentDaemon.Add(channel);
             return channel;
         }
         public async Task DestroyControlSpaceAsync(ControlSpace data)
         {
-            var cs = GetOrCreateControlSpace(data);
+           // var cs = GetOrCreateControlSpace(data);
             List<Guid> points = new List<Guid>();
             foreach (var item in PointService.Points)
             {
                 if (item.Value.CurrentControlSpace.ID== data.ID)
                 {
-                    if (item.Value.PointThread.ThreadState == System.Threading.ThreadState.Running)
+                    if (item.Value.PointTask.Status == TaskStatus.Running)
                     {
-                        item.Value.PointThread.Abort();
+                        item.Value.cancellationTokenSource.Dispose();
                     }
                     points.Add(item.Key);
                 }
@@ -115,9 +116,9 @@ namespace Parcs.WCF
         }
         public async Task SendFileAsync(FileTransferData data)
         {
-            var cs = GetOrCreateControlSpace(data.ControlSpace);
+            //var cs = GetOrCreateControlSpace(data.ControlSpace);
             string futureFilePath = $"{(string.IsNullOrWhiteSpace(data.ControlSpace.Name) ? data.ControlSpace.ID.ToString() : data.ControlSpace.Name)}/{((data.Path != null) ? data.Path.Trim('/') + "/" : "")}";
-            cs.PointDirectory = futureFilePath;
+            //cs.PointDirectory = futureFilePath;
 
             string FullFilename = futureFilePath + data.FileName;
             if (File.Exists(FullFilename))

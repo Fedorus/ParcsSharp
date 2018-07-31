@@ -20,6 +20,8 @@ namespace Parcs
         public Point ParentPoint { get; internal set; }
         internal Thread PointThread { get; set; }
         internal Task PointTask { get; set; }
+        internal CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+        public CancellationToken CancellationToken { get => cancellationTokenSource.Token; }
         internal PointInfo(ControlSpace spaceData)
         {
             CurrentControlSpace = spaceData;

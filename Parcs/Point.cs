@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ServiceModel;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Parcs.WCF;
@@ -99,9 +100,9 @@ namespace Parcs
         {
             await _PointServiceClient.StartAsync(_pointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
         }
-        public Task<bool> SendAsync<T>(T t)
+        public async Task<bool> SendAsync<T>(T t)
         {
-            return _PointServiceClient.SendAsync(_pointThatUsingThisPoint, 
+            return await _PointServiceClient.SendAsync(_pointThatUsingThisPoint, 
                 Channel, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(t)), t.GetType().ToString());
         }
         public Task StopAsync()

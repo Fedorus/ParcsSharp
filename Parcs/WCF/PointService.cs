@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting;
@@ -44,18 +45,16 @@ namespace Parcs.WCF
         public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
         {
             var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : throw new Exception("Point not found"); 
-
             pointData.CurrentControlSpace = space;
             pointData.CurrentControlSpace.CheckDaemons();
+
             var currentPoint = new Point(to, to, space);
             currentPoint.Data = new DataObjectsContainer<DataTransferObject>();
             pointData._currentPoint = currentPoint;
             pointData.CurrentControlSpace.CurrentPoint = currentPoint;
             pointData.ParentPoint = new Point(from, to, space);
             
-            if (info == null)
-            {}
-            else
+            if (info != null)
             {
                 object instance = null;
                 MethodBase method = null;
@@ -70,14 +69,24 @@ namespace Parcs.WCF
                     instance = assembly.CreateInstance(info.NamespaceAndClass);
                     method = instance.GetType().GetMethod(info.MethodName);
                 }
-                pointData.PointTask = Task.Factory.StartNew(
+              /*  pointData.PointTask = Task.Factory.StartNew(
                     async () => {
+                        Stopwatch sw = new Stopwatch();
+                        sw.Start();
                         await ((Task)method.Invoke(instance, new object[] { pointData })).ConfigureAwait(false);
-                        Console.WriteLine("point task done");
-                    }
-                    , TaskCreationOptions.LongRunning);
-                //pointData.PointThread = new System.Threading.Thread(() => { method.Invoke(instance, new object[] { pointData }); });
-               // pointData.PointThread.Start();
+                        Console.WriteLine("point task done in "+sw.Elapsed);
+                    }, 
+                    pointData.CancellationToken, 
+                    TaskCreationOptions.LongRunning, 
+                    TaskScheduler.Default);*/
+                pointData.PointThread = new System.Threading.Thread(async () =>
+                {
+                    Stopwatch sw = new Stopwatch();
+                    sw.Start();
+                    await ((Task)method.Invoke(instance, new object[] { pointData })).ConfigureAwait(false);
+                    Console.WriteLine($"point task {to.Name} done in " + sw.Elapsed);
+                });
+                pointData.PointThread.Start();
             }
             return true;
         }

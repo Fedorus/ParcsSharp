@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using Parcs;
 
@@ -13,6 +15,8 @@ namespace ParcsSharp
         {
             using (ControlSpace cs = new ControlSpace("Example"))
             {
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
                 int N = 3;
                 await cs.AddDirectoryAsync(Directory.GetCurrentDirectory());
                 var points = new Point[N];
@@ -22,16 +26,17 @@ namespace ParcsSharp
                     points[i] = await cs.CreatePointAsync(i.ToString(), PointType.Remote, ChannelType.TCP);
                     await points[i].AddChannelAsync(cs.CurrentPoint.Channel);
                     await points[i].RunAsync(new PointStartInfo(Tests.TestParcsPoints));
-                    points[i].SendAsync(i);
+                    await points[i].SendAsync(i);
                     tasks[i] = points[i].GetAsync<string>();
                 }
-                Task.WaitAll(tasks);
-                //await Task.WhenAll(tasks).ContinueWith((s)=>Console.WriteLine("Магия"));
+                Task.WaitAll(tasks); // Working
+                //await Task.WhenAll(tasks).ConfigureAwait(false); //not Working
+                //await Task.WhenAll(tasks).ContinueWith((s)=>Console.WriteLine("Magic")); //Working o_O
                 foreach (var item in tasks)
                 {
                     Console.WriteLine(item.Result);
                 }
-                Console.WriteLine("Done");
+                Console.WriteLine("Done " + sw.Elapsed);
                 Console.ReadKey();
             }
         }
@@ -39,7 +44,9 @@ namespace ParcsSharp
         {
             public async static Task TestParcsPoints(PointInfo info)
             {
-                await info.GetPoint(info.Channels[0]).SendAsync(info.CurrentPoint.Channel.Name).ConfigureAwait(false);
+                var point = info.GetPoint(info.Channels[0]);
+                Thread.Sleep(10000);
+                await point.SendAsync(info.CurrentPoint.Channel.Name);
                 Console.WriteLine($"Point {info.CurrentPoint.Channel.Name} done");
             }
         }

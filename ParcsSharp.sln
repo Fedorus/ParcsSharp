@@ -7,9 +7,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParcsSharp", "ParcsSharp\Pa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Parcs", "Parcs\Parcs.csproj", "{566D39E1-2F1D-47E4-9B45-2CFF51636B51}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TestProjects", "TestProjects", "{B8A0691E-8F35-4A10-A923-7F2FF8E9FF47}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaemonHost", "DaemonHost\DaemonHost.csproj", "{C99C176B-7193-40DC-96EA-49032B292BF4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{6425C0D6-AD46-44B7-AE11-205406906529}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatrixMult", "Examples\MatrixMult\MatrixMult.csproj", "{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,12 +31,16 @@ Global
 		{C99C176B-7193-40DC-96EA-49032B292BF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C99C176B-7193-40DC-96EA-49032B292BF4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C99C176B-7193-40DC-96EA-49032B292BF4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{C99C176B-7193-40DC-96EA-49032B292BF4} = {B8A0691E-8F35-4A10-A923-7F2FF8E9FF47}
+		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9} = {6425C0D6-AD46-44B7-AE11-205406906529}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F8A309F6-FEB7-409A-A9DE-77B95F73C365}
