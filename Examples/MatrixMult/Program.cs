@@ -20,8 +20,8 @@ namespace MatrixMult
             Matrix matrixB = new Matrix(N, N);
             matrixB.RandomFill(10);
             Stopwatch sw = new Stopwatch();
-            File.WriteAllBytes("A.txt", matrixA.ToByteArray());
-            File.WriteAllBytes("B.txt", matrixB.ToByteArray());
+            //File.WriteAllBytes("A.txt", matrixA.ToByteArray());
+            //File.WriteAllBytes("B.txt", matrixB.ToByteArray());
             sw.Start();
             using (ControlSpace cs = new ControlSpace("MatrixMult"))
             {
@@ -51,8 +51,8 @@ namespace MatrixMult
         {
             public static async Task MultStart(PointInfo info)
             {
-                var matrixA = Matrix.Load(info.CurrentControlSpace.PointDirectory + "A.txt"); // await info.ParentPoint.GetAsync<Matrix>();
-                var matrixB = Matrix.Load(info.CurrentControlSpace.PointDirectory + "B.txt");  //await info.ParentPoint.GetAsync<Matrix>();
+                var matrixA = await info.ParentPoint.GetAsync<Matrix>(); //Matrix.Load(info.CurrentControlSpace.PointDirectory + "A.txt"); // 
+                var matrixB = await info.ParentPoint.GetAsync<Matrix>();// Matrix.Load(info.CurrentControlSpace.PointDirectory + "B.txt");  //
                 var points = new Point[8];
                 var cs = info.CurrentControlSpace;
                 for (int i = 0; i < 8; i++)

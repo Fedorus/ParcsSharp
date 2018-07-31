@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Parcs.WCF
 {
-    [ServiceBehavior(AutomaticSessionShutdown = false, InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple,  IncludeExceptionDetailInFaults = true)]
     public class PointService : IPointService
     {
         public Dictionary<Guid, PointInfo> Points { get; set; } = new Dictionary<Guid, PointInfo>();
@@ -40,8 +40,6 @@ namespace Parcs.WCF
             }
             return true;
         }
-        
-
         public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
         {
             var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : throw new Exception("Point not found"); 

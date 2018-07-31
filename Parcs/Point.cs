@@ -102,7 +102,7 @@ namespace Parcs
         }
         public async Task<bool> SendAsync<T>(T t)
         {
-            return await _PointServiceClient.SendAsync(_pointThatUsingThisPoint, 
+             return await _PointServiceClient.SendAsync(_pointThatUsingThisPoint, 
                 Channel, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(t)), t.GetType().ToString());
         }
         public Task StopAsync()
