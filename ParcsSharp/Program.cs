@@ -29,8 +29,9 @@ namespace ParcsSharp
                     await points[i].SendAsync(i);
                     tasks[i] = points[i].GetAsync<string>();
                 }
-                Task.WaitAll(tasks); // Working
-                //await Task.WhenAll(tasks).ConfigureAwait(false); //not Working
+                //Task.WaitAll(tasks); // Working
+                await Task.WhenAll(tasks); //not Working
+                await Task.Delay(1000);
                 //await Task.WhenAll(tasks).ContinueWith((s)=>Console.WriteLine("Magic")); //Working o_O
                 foreach (var item in tasks)
                 {
@@ -45,7 +46,6 @@ namespace ParcsSharp
             public async static Task TestParcsPoints(PointInfo info)
             {
                 var point = info.GetPoint(info.Channels[0]);
-                Thread.Sleep(10000);
                 await point.SendAsync(info.CurrentPoint.Channel.Name);
                 Console.WriteLine($"Point {info.CurrentPoint.Channel.Name} done");
             }
