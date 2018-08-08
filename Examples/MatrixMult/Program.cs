@@ -13,8 +13,7 @@ namespace MatrixMult
     {
         static async Task Main(string[] args)
         {
-
-            int N = int.Parse(Console.ReadLine());// 1024;
+            int N = 2048; //int.Parse(Console.ReadLine());// 1024;
             Matrix matrixA = new Matrix(N, N);
             matrixA.RandomFill(10);
             Matrix matrixB = new Matrix(N, N);
@@ -30,8 +29,8 @@ namespace MatrixMult
                 await point.RunAsync(new PointStartInfo(MatrixMultiplicationParcsMethod.MultStart));
                 point.SendAsync(matrixA);
                 point.SendAsync(matrixB);
-               // Console.WriteLine(matrixA.ToString());
-               // Console.WriteLine(matrixB.ToString());
+                //Console.WriteLine(matrixA.ToString());
+                //Console.WriteLine(matrixB.ToString());
                 var matr = await point.GetAsync<Matrix>();
                 File.WriteAllText("Result.txt", matr.ToString());
 
@@ -58,7 +57,7 @@ namespace MatrixMult
                 for (int i = 0; i < 8; i++)
                 {
                     points[i] = await cs.CreatePointAsync("1");
-                    if (matrixA.Width / 2 > 100000000)
+                    if (matrixA.Width / 2 > 40000000000)
                     {
                         await points[i].RunAsync(new PointStartInfo(MultStart));
                     }

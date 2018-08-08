@@ -17,7 +17,7 @@ namespace ParcsSharp
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                int N = 3;
+                int N = 150;
                 await cs.AddDirectoryAsync(Directory.GetCurrentDirectory());
                 var points = new Point[N];
                 var tasks = new Task<string>[N];
@@ -29,10 +29,7 @@ namespace ParcsSharp
                     await points[i].SendAsync(i);
                     tasks[i] = points[i].GetAsync<string>();
                 }
-                //Task.WaitAll(tasks); // Working
-                await Task.WhenAll(tasks); //not Working
-                //await Task.Delay(1000); // but working with this
-                //await Task.WhenAll(tasks).ContinueWith((s)=>Console.WriteLine("Magic")); //Working o_O
+                await Task.WhenAll(tasks);
                 foreach (var item in tasks)
                 {
                     Console.WriteLine(item.Result);

@@ -66,11 +66,11 @@ namespace Parcs
                 {
                     var returnValue = e.ReceivedItem;
                     e.ReceivedItem = null;
+                   // Task.Factory.StartNew(()=> tcs.TrySetResult(JsonConvert.DeserializeObject<T>(returnValue.Data)));
                     tcs.SetResult(JsonConvert.DeserializeObject<T>(returnValue.Data));
                     return;
                 }
             }
-
             lock (_controlSpace.CurrentPoint.Data)
             {
                 if (_controlSpace.CurrentPoint.Data != null)
@@ -87,8 +87,9 @@ namespace Parcs
                 }
                 _controlSpace.CurrentPoint.Data.OnAdd += waitForresultEvent;
             }
-            T awaitedResultValue = await tcs.Task.ConfigureAwait(true);
+            T awaitedResultValue = await tcs.Task.ConfigureAwait(false);
             _controlSpace.CurrentPoint.Data.OnAdd -= waitForresultEvent;
+            await Task.Delay(0);//DO NOT DELETE
             return awaitedResultValue;
         }
 
