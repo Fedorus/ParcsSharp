@@ -10,6 +10,10 @@ namespace Parcs
         [EnumMember]
         TCP,
         [EnumMember]
+<<<<<<< HEAD
         NamedPipe // comment
+=======
+        NamedPipe
+>>>>>>> refs/remotes/origin/master
     }
 }
