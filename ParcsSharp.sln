@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{64
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatrixMult", "Examples\MatrixMult\MatrixMult.csproj", "{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleArithmetic", "Examples\SimpleArithmetic\SimpleArithmetic.csproj", "{665CAB0A-2F97-41BA-8DF8-E7142F73F844}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,12 +37,17 @@ Global
 		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{665CAB0A-2F97-41BA-8DF8-E7142F73F844}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{665CAB0A-2F97-41BA-8DF8-E7142F73F844}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{665CAB0A-2F97-41BA-8DF8-E7142F73F844}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{665CAB0A-2F97-41BA-8DF8-E7142F73F844}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{8AE619DA-16BE-4870-9B9A-20DA6D2706E9} = {6425C0D6-AD46-44B7-AE11-205406906529}
+		{665CAB0A-2F97-41BA-8DF8-E7142F73F844} = {6425C0D6-AD46-44B7-AE11-205406906529}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F8A309F6-FEB7-409A-A9DE-77B95F73C365}

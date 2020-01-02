@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Parcs.WCF
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple,  IncludeExceptionDetailInFaults = true)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Single,  IncludeExceptionDetailInFaults = true)]
     public class PointService : IPointService
     {
         public Dictionary<Guid, PointInfo> Points { get; set; } = new Dictionary<Guid, PointInfo>();
@@ -40,6 +40,7 @@ namespace Parcs.WCF
             }
             return true;
         }
+
         public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
         {
             var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : throw new Exception("Point not found"); 
@@ -67,21 +68,11 @@ namespace Parcs.WCF
                     instance = assembly.CreateInstance(info.NamespaceAndClass);
                     method = instance.GetType().GetMethod(info.MethodName);
                 }
-              /*  pointData.PointTask = Task.Factory.StartNew(
-                    async () => {
-                        Stopwatch sw = new Stopwatch();
-                        sw.Start();
-                        await ((Task)method.Invoke(instance, new object[] { pointData })).ConfigureAwait(false);
-                        Console.WriteLine("point task done in "+sw.Elapsed);
-                    }, 
-                    pointData.CancellationToken, 
-                    TaskCreationOptions.LongRunning, 
-                    TaskScheduler.Default);*/
-                pointData.PointThread = new System.Threading.Thread(async () =>
+                pointData.PointThread = new System.Threading.Thread( () =>
                 {
                     Stopwatch sw = new Stopwatch();
                     sw.Start();
-                    await ((Task)method.Invoke(instance, new object[] { pointData })).ConfigureAwait(false);
+                    ((Task)method.Invoke(instance, new object[] { pointData })).GetAwaiter().GetResult();
                     Console.WriteLine($"point task {to.Name} done in " + sw.Elapsed);
                 });
                 pointData.PointThread.Start();

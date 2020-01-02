@@ -90,6 +90,10 @@ namespace Parcs.WCF
             PointService.Points.Add(newPointGuid, pointInfo);
             
             Channel channel = new Channel(Name, channelType, IP, Port + 1, newPointGuid);
+            if (Name == "199")
+            {
+                Console.WriteLine("Yep!");
+            }
             //cs.ChannelsOnCurrentDaemon.Add(channel);
             return channel;
         }

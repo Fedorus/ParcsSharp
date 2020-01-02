@@ -66,30 +66,29 @@ namespace Parcs
                 {
                     var returnValue = e.ReceivedItem;
                     e.ReceivedItem = null;
-                   // Task.Factory.StartNew(()=> tcs.TrySetResult(JsonConvert.DeserializeObject<T>(returnValue.Data)));
-                    tcs.SetResult(JsonConvert.DeserializeObject<T>(returnValue.Data));
+                    _controlSpace.CurrentPoint.Data.OnAdd -= waitForresultEvent;
+                    Task.Factory.StartNew(()=> tcs.TrySetResult(JsonConvert.DeserializeObject<T>(returnValue.Data)), TaskCreationOptions.LongRunning);
                     return;
                 }
             }
+
             lock (_controlSpace.CurrentPoint.Data)
             {
-                if (_controlSpace.CurrentPoint.Data != null)
+                var result = _controlSpace.CurrentPoint.Data._items.Find(x =>
+                    x.From == Channel &&
+                    x.To == _pointThatUsingThisPoint &&
+                    x.Type == typeof(T).ToString()
+                    );
+                if (result != null)
                 {
-                    var result = _controlSpace.CurrentPoint.Data._items.Find(x =>
-                        x.From == Channel &&
-                        x.To == _pointThatUsingThisPoint &&
-                        x.Type == typeof(T).ToString()
-                        );
-                    if (result != null)
-                    {
-                        return JsonConvert.DeserializeObject<T>(result.Data);
-                    }
+                    _controlSpace.CurrentPoint.Data._items.Remove(result);
+                    return JsonConvert.DeserializeObject<T>(result.Data);
                 }
+
                 _controlSpace.CurrentPoint.Data.OnAdd += waitForresultEvent;
             }
             T awaitedResultValue = await tcs.Task.ConfigureAwait(false);
-            _controlSpace.CurrentPoint.Data.OnAdd -= waitForresultEvent;
-            await Task.Delay(0);//DO NOT DELETE
+            //_controlSpace.CurrentPoint.Data.OnAdd -= waitForresultEvent;
             return awaitedResultValue;
         }
 
@@ -97,9 +96,9 @@ namespace Parcs
         {
             throw new System.NotImplementedException();
         }
-        public async Task RunAsync(PointStartInfo pointStartInfo)
+        public Task RunAsync(PointStartInfo pointStartInfo)
         {
-            await _PointServiceClient.StartAsync(_pointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
+             return _PointServiceClient.StartAsync(_pointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
         }
         public async Task<bool> SendAsync<T>(T t)
         {

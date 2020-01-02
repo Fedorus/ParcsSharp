@@ -40,5 +40,9 @@ namespace Parcs
         {
             return !(x == y);
         }
+        public override int GetHashCode()
+        {
+            return this.PointID.GetHashCode();
+        }
     }
 }
