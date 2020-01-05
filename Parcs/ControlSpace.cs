@@ -143,9 +143,9 @@ namespace Parcs
             Daemon daemonForPoint = Creator.ChooseDaemon(Daemons);
             return await daemonForPoint.CreatePointAsync();
         }
-        public  Task<Point> CreatePointAsync(string name)
+        public async Task<Point> CreatePointAsync(string name)
         {
-            return CreatePointAsync(name, PointType.Any, ChannelType.Any);
+            return await CreatePointAsync(name, PointType.Any, ChannelType.Any);
         }
         public async Task<Point> CreatePointAsync(string Name, PointType pointType, ChannelType channelType)
         {

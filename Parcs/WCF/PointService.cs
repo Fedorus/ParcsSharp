@@ -43,7 +43,7 @@ namespace Parcs.WCF
 
         public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
         {
-            var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : throw new Exception("Point not found"); 
+            var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : throw new Exception("Point not found");
             pointData.CurrentControlSpace = space;
             pointData.CurrentControlSpace.CheckDaemons();
 
@@ -52,7 +52,7 @@ namespace Parcs.WCF
             pointData._currentPoint = currentPoint;
             pointData.CurrentControlSpace.CurrentPoint = currentPoint;
             pointData.ParentPoint = new Point(from, to, space);
-            
+
             if (info != null)
             {
                 object instance = null;
@@ -68,15 +68,33 @@ namespace Parcs.WCF
                     instance = assembly.CreateInstance(info.NamespaceAndClass);
                     method = instance.GetType().GetMethod(info.MethodName);
                 }
-                pointData.PointThread = new System.Threading.Thread( () =>
+                Stopwatch sw = new Stopwatch();
+                sw.Start();
+
+                ((Task)method.Invoke(instance, new object[] { pointData }))
+                    .ContinueWith((t) =>
+                    {
+                        sw.Stop();
+                        Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");
+                    }
+                    ).ConfigureAwait(false);
+
+                /*pointData.PointThread = new System.Threading.Thread( () =>
                 {
                     Stopwatch sw = new Stopwatch();
                     sw.Start();
                     ((Task)method.Invoke(instance, new object[] { pointData })).GetAwaiter().GetResult();
                     Console.WriteLine($"point task {to.Name} done in " + sw.Elapsed);
+                    sw.Stop();
                 });
-                pointData.PointThread.Start();
+                pointData.PointThread.Start();*/
             }
+            return true;
+        }
+
+        public async Task<bool> TestWork()
+        {
+            Task.Run(() => Task.Delay(10000));
             return true;
         }
     }

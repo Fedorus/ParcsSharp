@@ -45,6 +45,8 @@
     <Compile Include="Daemon.cs" />
     <Compile Include="DataObjectsContainer.cs" />
     <Compile Include="DataTransferObject.cs" />
+    <Compile Include="Logging\IParcsLogger.cs" />
+    <Compile Include="Logging\TextFileLogger.cs" />
     <Compile Include="PointCreationManager.cs" />
     <Compile Include="PointInfo.cs" />
     <Compile Include="PointStartInfo.cs" />

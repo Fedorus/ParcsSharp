@@ -5,6 +5,7 @@ using System.Threading;
 using System.Reflection;
 using Parcs.WCF;
 using System.Threading.Tasks;
+using Parcs.Logging;
 
 namespace Parcs
 {
@@ -22,9 +23,11 @@ namespace Parcs
         internal Task PointTask { get; set; }
         internal CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
         public CancellationToken CancellationToken { get => cancellationTokenSource.Token; }
-        internal PointInfo(ControlSpace spaceData)
+        public IParcsLogger Logger { get; set; }
+        internal PointInfo(ControlSpace spaceData, string Name)
         {
             CurrentControlSpace = spaceData;
+            Logger = new TextFileLogger(Name);
         }
 
         public Point GetPoint(Channel channel)

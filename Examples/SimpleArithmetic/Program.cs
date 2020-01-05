@@ -14,7 +14,7 @@ namespace SimpleArithmetic
         {
             ControlSpace cs = new ControlSpace("Simple stuff");
             var points = new List<Point>(400);
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 600; i++)
             {
                 var point = await cs.CreatePointAsync(i.ToString(), PointType.Any, ChannelType.TCP);
                 points.Add(point);
@@ -24,10 +24,17 @@ namespace SimpleArithmetic
             Stopwatch sw = new Stopwatch();
             sw.Start();
             int result = 0;
-            await Task.Delay(10000);
+            //await Task.Delay(10000);
             foreach (var item in points)
             {
-                result += await item.GetAsync<int>();
+                var  res = await item.GetAsync<int>();
+                if (res!= points.IndexOf(item))
+                {
+                    Console.WriteLine("Fuck");
+                }
+                result += res;
+
+                //Console.WriteLine($"{result}");
             }
             Console.WriteLine(result);
             Console.WriteLine(sw.Elapsed);
@@ -49,9 +56,18 @@ namespace SimpleArithmetic
 
         public static async Task TestMethod(PointInfo info)
         {
-             info.ParentPoint.SendAsync(3);
+            if (info.CurrentPoint.Channel.Name == "599")
+            {
+                await Task.Delay(10000);
+                Console.WriteLine("Hello from 599");
+            }
 
-             info.ParentPoint.SendAsync(1000);
+            await Task.Delay(5000);
+            info.Logger.Log("Point started");
+            await info.ParentPoint.SendAsync(int.Parse(info.CurrentPoint.Channel.Name));
+            info.Logger.Log("First data sended");
+            await info.ParentPoint.SendAsync(1000);
+            info.Logger.Log("Second data sended");
         }
     }
 }

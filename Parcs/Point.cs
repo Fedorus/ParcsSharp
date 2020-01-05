@@ -35,19 +35,20 @@ namespace Parcs
             }
             _pointThatUsingThisPoint = currentPointChannel;
             Channel = channelToRemotePoint;
-            _controlSpace = space;
+            _controlSpace = space;/*
             if (channelToRemotePoint.IP == currentPointChannel.IP && channelToRemotePoint.Type != ChannelType.TCP)
             {
                 _PointServiceClient = ChannelFactory<IPointService>.CreateChannel(new NetNamedPipeBinding(), new EndpointAddress($"net.pipe://{channelToRemotePoint.IP}/{channelToRemotePoint.Port}"));
             }
-            else
+            else*/
             {
-                _PointServiceClient = ChannelFactory<IPointService>.CreateChannel(new NetTcpBinding(), new EndpointAddress($"net.tcp://{channelToRemotePoint.IP}:{channelToRemotePoint.Port}"));
-            }
+                _PointServiceClient = ChannelFactory<IPointService>.CreateChannel(new NetTcpBinding() { SendTimeout = TimeSpan.FromHours(1), ReceiveTimeout  = TimeSpan.FromHours(1)}, new EndpointAddress($"net.tcp://{channelToRemotePoint.IP}:{channelToRemotePoint.Port}"));
+            } //
         }
-        public Task AddChannelAsync(Channel channel)
+
+        public async Task AddChannelAsync(Channel channel)
         {
-            return _PointServiceClient.AddChannelAsync(Channel, channel);
+            await _PointServiceClient.AddChannelAsync(Channel, channel);
         }
 
         public Task CancelAsync()
@@ -58,7 +59,7 @@ namespace Parcs
         public async Task<T> GetAsync<T>()
         {
             var tcs = new TaskCompletionSource<T>();
-            void waitForresultEvent(object sender, DataReceivedEventArgs<DataTransferObject> e)
+            void WaitForResultEvent(object sender, DataReceivedEventArgs<DataTransferObject> e)
             {
                 if (e.ReceivedItem == null || tcs.Task.IsCompleted == true)
                     return;
@@ -66,9 +67,10 @@ namespace Parcs
                 {
                     var returnValue = e.ReceivedItem;
                     e.ReceivedItem = null;
-                    _controlSpace.CurrentPoint.Data.OnAdd -= waitForresultEvent;
-                    Task.Factory.StartNew(()=> tcs.TrySetResult(JsonConvert.DeserializeObject<T>(returnValue.Data)), TaskCreationOptions.LongRunning);
-                    return;
+                    _controlSpace.CurrentPoint.Data.OnAdd -= WaitForResultEvent;
+                    var data = JsonConvert.DeserializeObject<T>(returnValue.Data);
+                    Task.Factory.StartNew(()=> tcs.TrySetResult(JsonConvert.DeserializeObject<T>(returnValue.Data)), TaskCreationOptions.LongRunning).ConfigureAwait(false);
+                    
                 }
             }
 
@@ -85,10 +87,9 @@ namespace Parcs
                     return JsonConvert.DeserializeObject<T>(result.Data);
                 }
 
-                _controlSpace.CurrentPoint.Data.OnAdd += waitForresultEvent;
+                _controlSpace.CurrentPoint.Data.OnAdd += WaitForResultEvent;
             }
             T awaitedResultValue = await tcs.Task.ConfigureAwait(false);
-            //_controlSpace.CurrentPoint.Data.OnAdd -= waitForresultEvent;
             return awaitedResultValue;
         }
 
@@ -96,14 +97,14 @@ namespace Parcs
         {
             throw new System.NotImplementedException();
         }
-        public Task RunAsync(PointStartInfo pointStartInfo)
+        public async Task RunAsync(PointStartInfo pointStartInfo)
         {
-             return _PointServiceClient.StartAsync(_pointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
+             await _PointServiceClient.StartAsync(_pointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
         }
         public async Task<bool> SendAsync<T>(T t)
         {
              return await _PointServiceClient.SendAsync(_pointThatUsingThisPoint, 
-                Channel, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(t)), t.GetType().ToString());
+                Channel, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(t)), t.GetType().ToString()).ConfigureAwait(false);
         }
         public Task StopAsync()
         {

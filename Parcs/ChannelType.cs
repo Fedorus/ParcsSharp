@@ -10,6 +10,6 @@ namespace Parcs
         [EnumMember]
         TCP,
         [EnumMember]
-        NamedPipe // comment
+        NamedPipe 
     }
 }

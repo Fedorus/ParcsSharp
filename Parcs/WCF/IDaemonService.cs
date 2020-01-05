@@ -19,5 +19,7 @@ namespace Parcs.WCF
 
         [OperationContract]
         Task SendFileAsync(FileTransferData data);
+        [OperationContract]
+        Task<bool> TestWork();
     }
 }

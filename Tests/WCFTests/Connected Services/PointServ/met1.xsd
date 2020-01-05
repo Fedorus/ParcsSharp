@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:tns="http://schemas.datacontract.org/2004/07/System" elementFormDefault="qualified" targetNamespace="http://schemas.datacontract.org/2004/07/System" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="http://localhost:669/met?xsd=xsd4" namespace="http://schemas.microsoft.com/2003/10/Serialization/Arrays" />
+  <xs:complexType name="Random">
+    <xs:sequence>
+      <xs:element xmlns:q1="http://schemas.microsoft.com/2003/10/Serialization/Arrays" name="SeedArray" nillable="true" type="q1:ArrayOfint" />
+      <xs:element name="inext" type="xs:int" />
+      <xs:element name="inextp" type="xs:int" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Random" nillable="true" type="tns:Random" />
+</xs:schema>

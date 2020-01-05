@@ -12,8 +12,9 @@ namespace Parcs
         public event EventHandler<DataReceivedEventArgs<T>> OnAdd;
         public void Add(T item)
         {
-            var evArg = new DataReceivedEventArgs<T>(item);
-            OnAdd?.Invoke(this, evArg);
+            var evArg = new DataReceivedEventArgs<T>(item); 
+            OnAdd?.Invoke(this, evArg); 
+            
             if (evArg.ReceivedItem != null)
             {
                 _items.Add(item);

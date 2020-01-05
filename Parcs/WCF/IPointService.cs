@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ServiceModel;
 using System.Threading.Tasks;
+using Parcs;
 
 namespace Parcs.WCF
 {
@@ -13,5 +14,8 @@ namespace Parcs.WCF
         Task<bool> SendAsync(Channel from, Channel to, byte[] data, string type);
         [OperationContract]
         Task<bool> AddChannelAsync(Channel to, Channel channel);
+
+        [OperationContract]
+        Task<bool> TestWork();
     }
 }

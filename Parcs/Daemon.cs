@@ -31,13 +31,13 @@ namespace Parcs
             return point;
         }
 
-        internal Task<Point> CreatePointAsync()
+        internal async Task<Point> CreatePointAsync()
         {
-            return CreatePointAsync("", ChannelType.Any);
+            return await CreatePointAsync("", ChannelType.Any);
         }
-        public Task SendFileAsync(FileTransferData data)
+        public async Task SendFileAsync(FileTransferData data)
         {
-           return daemon.SendFileAsync(data);
+            await daemon.SendFileAsync(data);
         }
     }
 }

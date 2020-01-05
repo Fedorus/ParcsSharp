@@ -5,16 +5,17 @@ using System.Threading.Tasks;
 using System.ServiceModel;
 using System.IO;
 using Parcs.WCF.Cheats;
+using System.ServiceModel.Description;
 
 namespace Parcs.WCF
 {
-    [ServiceBehavior(AutomaticSessionShutdown = false, InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true)] //, ConcurrencyMode = ConcurrencyMode.Multiple
+    [ServiceBehavior(AutomaticSessionShutdown = false, ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true)] //, ConcurrencyMode = ConcurrencyMode.Multiple
     public class DaemonService : IDaemonService
     {
         private string IP { get; set; }
         private int Port { get; set; }
         public string Address => $"net.tcp://{IP}:{Port}/";
-        public DaemonService(int port = 666)
+        public DaemonService(int port = 666, bool addMetadata = false)
         {
             Port = port;
             PointService = new PointService();
@@ -41,7 +42,15 @@ namespace Parcs.WCF
                     ReceiveTimeout = TimeSpan.FromHours(1)
                 },
                 baseAddress2);
+            var metadataAdress = new Uri($"http://localhost:{port + 3}/met");
+            var smb = new ServiceMetadataBehavior();
+            smb.HttpGetEnabled = true;
+            smb.HttpGetUrl = new Uri($"http://localhost:{port + 3}/met");
+            smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
+            host.Description.Behaviors.Add(smb);
+            host.AddServiceEndpoint(typeof(IPointService), new WSHttpBinding(), $"http://localhost:{port + 3}/met");
             host.Open();
+
             Console.WriteLine($"Daemon was hosted on URI:");
             Console.WriteLine($"net.tcp://{IP}:{Port}");
             Console.WriteLine($"Point service hosted on addresses:");
@@ -85,15 +94,11 @@ namespace Parcs.WCF
            // var cs = GetOrCreateControlSpace(controlSpace);
             Guid newPointGuid = Guid.NewGuid();
 
-            var pointInfo = new PointInfo(controlSpace);
+            var pointInfo = new PointInfo(controlSpace, Name);
 
             PointService.Points.Add(newPointGuid, pointInfo);
             
             Channel channel = new Channel(Name, channelType, IP, Port + 1, newPointGuid);
-            if (Name == "199")
-            {
-                Console.WriteLine("Yep!");
-            }
             //cs.ChannelsOnCurrentDaemon.Add(channel);
             return channel;
         }
@@ -140,6 +145,11 @@ namespace Parcs.WCF
 #if DEBUG
             Console.WriteLine($"{data.Path}\\{data.FileName} transfered");
 #endif
+        }
+
+        public async Task<bool> TestWork()
+        {
+            return true;
         }
     }
 }
