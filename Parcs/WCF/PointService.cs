@@ -26,19 +26,22 @@ namespace Parcs.WCF
             return true;
         }
 
-        public async Task<bool> SendAsync(Channel from, Channel to, byte[] data, string type)
+        public async Task<ReceiveConfirmation> SendAsync(SendDataParams sendData)
         {
-            var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : null;
+            var s = new Stopwatch();
+            s.Start();
+            var pointData = Points.ContainsKey(sendData.To.PointID) ? Points[sendData.To.PointID] : null;
             if (pointData == null)
             {
                 throw new Exception("Point not found");
             }
             lock (pointData.CurrentPoint.Data)
             {
-                pointData.CurrentPoint.Data.Add(new DataTransferObject()
-                { Data = Encoding.UTF8.GetString(data), From = from, To = to, Time = DateTime.Now, Type = type });
+                pointData.CurrentPoint.Data.Add(sendData);
             }
-            return true;
+
+            Console.WriteLine("Server wasted:  "  +s.Elapsed);
+            return new ReceiveConfirmation() { Result = true };
         }
 
         public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
@@ -48,7 +51,7 @@ namespace Parcs.WCF
             pointData.CurrentControlSpace.CheckDaemons();
 
             var currentPoint = new Point(to, to, space);
-            currentPoint.Data = new DataObjectsContainer<DataTransferObject>();
+            currentPoint.Data = new DataObjectsContainer<SendDataParams>();
             pointData._currentPoint = currentPoint;
             pointData.CurrentControlSpace.CurrentPoint = currentPoint;
             pointData.ParentPoint = new Point(from, to, space);

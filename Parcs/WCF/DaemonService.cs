@@ -23,24 +23,10 @@ namespace Parcs.WCF
 
             var baseAddress = new Uri("net.tcp://localhost:" + (port + 1));
             var host = new ServiceHost(PointService);
-            host.AddServiceEndpoint(typeof(IPointService),
-                new NetTcpBinding()
-                {
-                    MaxReceivedMessageSize = 1024 * 1024 * 64,
-                    MaxBufferSize = 1024 * 1024 * 64,
-                    SendTimeout = TimeSpan.FromHours(1),
-                    ReceiveTimeout = TimeSpan.FromHours(1)
-                },
+            host.AddServiceEndpoint(typeof(IPointService), WCFSettings.GetTcpBinding(),
                 baseAddress);
             var baseAddress2 = new Uri("net.pipe://localhost/" + (port + 1));
-            host.AddServiceEndpoint(typeof(IPointService),
-                new NetNamedPipeBinding()
-                {
-                    MaxReceivedMessageSize = 1024 * 1024 * 64,
-                    MaxBufferSize = 1024 * 1024 * 64,
-                    SendTimeout = TimeSpan.FromHours(1),
-                    ReceiveTimeout = TimeSpan.FromHours(1)
-                },
+            host.AddServiceEndpoint(typeof(IPointService), WCFSettings.GetNamedPipeBinding(),
                 baseAddress2);
             var metadataAdress = new Uri($"http://localhost:{port + 3}/met");
             var smb = new ServiceMetadataBehavior();

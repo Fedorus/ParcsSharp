@@ -13,12 +13,7 @@ namespace Parcs
         {
             LinkedControlSpace = space;
             Name = daemonIPAndPort;
-            daemon = ChannelFactory<IDaemonService>.CreateChannel(new NetTcpBinding() {
-                MaxReceivedMessageSize = 1024 * 1024 * 64,
-                MaxBufferSize = 1024 * 1024 * 64,
-                SendTimeout = TimeSpan.FromHours(1),
-                ReceiveTimeout = TimeSpan.FromHours(1)
-            }, new EndpointAddress(daemonIPAndPort));
+            daemon = ChannelFactory<IDaemonService>.CreateChannel(WCFSettings.GetTcpBinding(), new EndpointAddress(daemonIPAndPort));
         }
 
         public string Name { get;}

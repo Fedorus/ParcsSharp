@@ -25,14 +25,7 @@ namespace Parcs.WCF
             }
             var baseAddress = new Uri("net.tcp://localhost:"+port);
             _host = new ServiceHost(_service, baseAddress);
-            _host.AddServiceEndpoint(typeof(IDaemonService),
-                new NetTcpBinding()
-                {
-                    MaxReceivedMessageSize = 1024 * 1024 * 64,
-                    MaxBufferSize = 1024 * 1024 * 64,
-                    SendTimeout = TimeSpan.FromHours(1),
-                    ReceiveTimeout = TimeSpan.FromHours(1),
-                },
+            _host.AddServiceEndpoint(typeof(IDaemonService),WCFSettings.GetTcpBinding(),
                 baseAddress);
             //_host.Description.Behaviors.Add(new System.ServiceModel.Discovery.ServiceDiscoveryBehavior())
             //starts

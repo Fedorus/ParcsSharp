@@ -14,7 +14,7 @@ namespace SimpleArithmetic
         {
             ControlSpace cs = new ControlSpace("Simple stuff");
             var points = new List<Point>(400);
-            for (int i = 0; i < 600; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var point = await cs.CreatePointAsync(i.ToString(), PointType.Any, ChannelType.TCP);
                 points.Add(point);
@@ -27,21 +27,17 @@ namespace SimpleArithmetic
             //await Task.Delay(10000);
             foreach (var item in points)
             {
-                var  res = await item.GetAsync<int>();
-                if (res!= points.IndexOf(item))
+                for (int i = 0; i < N; i++)
                 {
-                    Console.WriteLine("Fuck");
+                    var s = new Stopwatch();
+                    s.Start();
+                    var res = await item.GetAsync<int>();
+                    Console.WriteLine(s.Elapsed);
+                    result += res;
                 }
-                result += res;
-
-                //Console.WriteLine($"{result}");
             }
             Console.WriteLine(result);
             Console.WriteLine(sw.Elapsed);
-            foreach (var item in points)
-            {
-                result += await item.GetAsync<int>();
-            }
             Console.WriteLine(result);
             Console.WriteLine(sw.Elapsed);
             Console.ReadKey();
@@ -53,21 +49,14 @@ namespace SimpleArithmetic
             int res = await point.GetAsync<int>();
             await info.ParentPoint.SendAsync(res);
         }
-
+        const int N = 100;
         public static async Task TestMethod(PointInfo info)
         {
-            if (info.CurrentPoint.Channel.Name == "599")
+            for (int i = 0; i < N; i++)
             {
-                await Task.Delay(10000);
-                Console.WriteLine("Hello from 599");
+                await info.ParentPoint.SendAsync(i);
             }
-
-            await Task.Delay(5000);
-            info.Logger.Log("Point started");
-            await info.ParentPoint.SendAsync(int.Parse(info.CurrentPoint.Channel.Name));
-            info.Logger.Log("First data sended");
-            await info.ParentPoint.SendAsync(1000);
-            info.Logger.Log("Second data sended");
+            //await info.ParentPoint.SendAsync(1000);
         }
     }
 }
