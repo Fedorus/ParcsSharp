@@ -46,20 +46,7 @@ namespace Parcs.WCF
         //public List<ControlSpace> controlSpaces { get; set; } = new List<ControlSpace>();
         public ServiceHost host;
         public PointService PointService;
-      /*  private ControlSpace GetOrCreateControlSpace(ControlSpace cs)
-        {
-            var controlSpace = controlSpaces.FirstOrDefault(x => x.ID == cs.ID);
-            if (controlSpace == null)
-            {
-                controlSpace = cs;
-                controlSpaces.Add(cs);
-            }
-            else
-            {
-                controlSpace.DaemonAdresses = cs.DaemonAdresses;
-            }
-            return controlSpace;
-        }*/
+      
         private Uri MakeUri(ChannelType type)
         {
             switch (type)
@@ -90,7 +77,6 @@ namespace Parcs.WCF
         }
         public async Task DestroyControlSpaceAsync(ControlSpace data)
         {
-           // var cs = GetOrCreateControlSpace(data);
             List<Guid> points = new List<Guid>();
             foreach (var item in PointService.Points)
             {
@@ -111,14 +97,12 @@ namespace Parcs.WCF
         }
         public async Task SendFileAsync(FileTransferData data)
         {
-            //var cs = GetOrCreateControlSpace(data.ControlSpace);
             string futureFilePath = $"{(string.IsNullOrWhiteSpace(data.ControlSpace.Name) ? data.ControlSpace.ID.ToString() : data.ControlSpace.Name)}/{((data.Path != null) ? data.Path.Trim('/') + "/" : "")}";
-            //cs.PointDirectory = futureFilePath;
 
-            string FullFilename = futureFilePath + data.FileName;
-            if (File.Exists(FullFilename))
+            string fullFilename = futureFilePath + data.FileName;
+            if (File.Exists(fullFilename))
             {
-                if (data.Hash == FileChecksum.Calculate(FullFilename))
+                if (data.Hash == FileChecksum.Calculate(fullFilename))
                 {
 #if DEBUG
                     Console.WriteLine($"File {data.Path}\\{data.FileName} already exist");
@@ -127,7 +111,7 @@ namespace Parcs.WCF
                 }
             }
             Directory.CreateDirectory(futureFilePath);
-            File.WriteAllBytes(FullFilename, data.FileData);
+            File.WriteAllBytes(fullFilename, data.FileData);
 #if DEBUG
             Console.WriteLine($"{data.Path}\\{data.FileName} transfered");
 #endif

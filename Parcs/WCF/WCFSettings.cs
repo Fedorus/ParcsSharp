@@ -12,11 +12,12 @@ namespace Parcs.WCF
         public static NetTcpBinding GetTcpBinding() =>
             new NetTcpBinding()
             {
-                TransferMode = TransferMode.Streamed,
+                //TransferMode = TransferMode.Streamed,
                 MaxReceivedMessageSize = int.MaxValue,
                 MaxBufferSize = int.MaxValue,
-                SendTimeout = TimeSpan.FromMinutes(1),
-                ReceiveTimeout = TimeSpan.FromMinutes(1)
+                SendTimeout = TimeSpan.FromMinutes(2),
+                ReceiveTimeout = TimeSpan.FromMinutes(2),
+                Security = new NetTcpSecurity() { Mode = SecurityMode.None } 
             };
 
         public static NetNamedPipeBinding GetNamedPipeBinding() => new NetNamedPipeBinding()

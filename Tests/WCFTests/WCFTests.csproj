@@ -33,6 +33,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -47,90 +48,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Connected Services\DaemonServ\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
-    <Compile Include="Connected Services\PointServ\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="Connected Services\DaemonServ\DaemonService.wsdl" />
-    <None Include="Connected Services\DaemonServ\met.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\DaemonServ\met1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\DaemonServ\met2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\DaemonServ\met3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\DaemonServ\met4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\DaemonServ\met5.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\DaemonServ\WCFTests.DaemonServ.Channel.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Connected Services\PointServ\met.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\PointServ\met1.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\PointServ\met2.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\PointServ\met3.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\PointServ\met4.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Connected Services\PointServ\PointService.wsdl" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Connected Services\DaemonServ\" />
-    <WCFMetadataStorage Include="Connected Services\PointServ\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\DaemonServ\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\DaemonServ\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\DaemonServ\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\PointServ\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\PointServ\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Connected Services\PointServ\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

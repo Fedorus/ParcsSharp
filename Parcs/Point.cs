@@ -70,9 +70,10 @@ namespace Parcs
                     e.ReceivedItem = null;
                     _controlSpace.CurrentPoint.Data.OnAdd -= WaitForResultEvent;
                     T data;
-                    using (var reader = new StreamReader(returnValue.Data)) //TODO deserialization interface
+                    //using (var reader = new StreamReader(returnValue.Data)) //TODO deserialization interface
                     {
-                         data = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+                        //data = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+                        data = JsonConvert.DeserializeObject<T>(returnValue.Data);
                     }
                     Task.Factory.StartNew(()=> tcs.TrySetResult(data), TaskCreationOptions.LongRunning).ConfigureAwait(false);
                 }
@@ -88,10 +89,11 @@ namespace Parcs
                 if (result != null)
                 {
                     _controlSpace.CurrentPoint.Data._items.Remove(result);
-                    using (var reader = new StreamReader(result.Data)) //TODO serialization interface
-                    {
-                        return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
-                    }
+                    /* using (var reader = new StreamReader(result.Data)) //TODO serialization interface
+                     {
+                         return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
+                     }*/
+                    return JsonConvert.DeserializeObject<T>(result.Data);
                 }
 
                 _controlSpace.CurrentPoint.Data.OnAdd += WaitForResultEvent;
@@ -113,7 +115,7 @@ namespace Parcs
             return (await _PointServiceClient.SendAsync(new SendDataParams(){
                 From =  _pointThatUsingThisPoint,
                 To = Channel,
-                Data = new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(t))),
+                Data = JsonConvert.SerializeObject(t),
                 Type = t.GetType().ToString() })
                .ConfigureAwait(false)).Result;
         }

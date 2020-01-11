@@ -13,31 +13,25 @@ namespace SimpleArithmetic
         public static async Task Main(string[] args)
         {
             ControlSpace cs = new ControlSpace("Simple stuff");
+            var sw = new Stopwatch();
+            sw.Start();
             var points = new List<Point>(400);
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 2; i++)
             {
                 var point = await cs.CreatePointAsync(i.ToString(), PointType.Any, ChannelType.TCP);
                 points.Add(point);
-                await point.RunAsync(new PointStartInfo(TestMethod));
+                point.RunAsync(new PointStartInfo(TestMethod));
             }
 
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
             int result = 0;
             //await Task.Delay(10000);
             foreach (var item in points)
             {
                 for (int i = 0; i < N; i++)
                 {
-                    var s = new Stopwatch();
-                    s.Start();
-                    var res = await item.GetAsync<int>();
-                    Console.WriteLine(s.Elapsed);
-                    result += res;
+                    result += await item.GetAsync<int>();
                 }
             }
-            Console.WriteLine(result);
-            Console.WriteLine(sw.Elapsed);
             Console.WriteLine(result);
             Console.WriteLine(sw.Elapsed);
             Console.ReadKey();
@@ -49,14 +43,13 @@ namespace SimpleArithmetic
             int res = await point.GetAsync<int>();
             await info.ParentPoint.SendAsync(res);
         }
-        const int N = 100;
+        const int N = 100000;
         public static async Task TestMethod(PointInfo info)
         {
             for (int i = 0; i < N; i++)
             {
-                await info.ParentPoint.SendAsync(i);
+               await info.ParentPoint.SendAsync(i);
             }
-            //await info.ParentPoint.SendAsync(1000);
         }
     }
 }

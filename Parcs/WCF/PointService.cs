@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Parcs.WCF
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Single,  IncludeExceptionDetailInFaults = true)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple,  IncludeExceptionDetailInFaults = true)]
     public class PointService : IPointService
     {
         public Dictionary<Guid, PointInfo> Points { get; set; } = new Dictionary<Guid, PointInfo>();
@@ -28,8 +28,7 @@ namespace Parcs.WCF
 
         public async Task<ReceiveConfirmation> SendAsync(SendDataParams sendData)
         {
-            var s = new Stopwatch();
-            s.Start();
+           // var s = new Stopwatch(); s.Start();
             var pointData = Points.ContainsKey(sendData.To.PointID) ? Points[sendData.To.PointID] : null;
             if (pointData == null)
             {
@@ -39,8 +38,7 @@ namespace Parcs.WCF
             {
                 pointData.CurrentPoint.Data.Add(sendData);
             }
-
-            Console.WriteLine("Server wasted:  "  +s.Elapsed);
+//Console.WriteLine("Server wasted:  "  +s.Elapsed);
             return new ReceiveConfirmation() { Result = true };
         }
 
@@ -78,7 +76,7 @@ namespace Parcs.WCF
                     .ContinueWith((t) =>
                     {
                         sw.Stop();
-                        Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");
+                        //Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");
                     }
                     ).ConfigureAwait(false);
 

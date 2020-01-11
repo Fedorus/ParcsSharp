@@ -7,13 +7,13 @@ namespace Parcs
 {
     public class Daemon
     {
-        private readonly IDaemonService daemon;
-        private readonly ControlSpace LinkedControlSpace;
+        private readonly IDaemonService _daemon;
+        private readonly ControlSpace _linkedControlSpace;
         internal Daemon(string daemonIPAndPort, ControlSpace space)
         {
-            LinkedControlSpace = space;
+            _linkedControlSpace = space;
             Name = daemonIPAndPort;
-            daemon = ChannelFactory<IDaemonService>.CreateChannel(WCFSettings.GetTcpBinding(), new EndpointAddress(daemonIPAndPort));
+            _daemon = ChannelFactory<IDaemonService>.CreateChannel(WCFSettings.GetTcpBinding(), new EndpointAddress(daemonIPAndPort));
         }
 
         public string Name { get;}
@@ -21,8 +21,8 @@ namespace Parcs
 
         internal async Task<Point> CreatePointAsync(string name, ChannelType channelType)
         {
-            var channel = await daemon.CreatePointAsync(name, channelType, LinkedControlSpace);
-            var point = new Point(channel, LinkedControlSpace.CurrentPoint?.Channel, LinkedControlSpace);
+            var channel = await _daemon.CreatePointAsync(name, channelType, _linkedControlSpace);
+            var point = new Point(channel, _linkedControlSpace.CurrentPoint?.Channel, _linkedControlSpace);
             return point;
         }
 
@@ -32,7 +32,7 @@ namespace Parcs
         }
         public async Task SendFileAsync(FileTransferData data)
         {
-            await daemon.SendFileAsync(data);
+            await _daemon.SendFileAsync(data);
         }
     }
 }

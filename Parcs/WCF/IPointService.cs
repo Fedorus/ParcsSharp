@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using Parcs;
@@ -20,24 +21,26 @@ namespace Parcs.WCF
         Task<bool> TestWork();
     }
 
-    [MessageContract]
+    [DataContract]
     public class ReceiveConfirmation
     {
+        [DataMember]
         public bool Result;
+        [DataMember]
         public string ErrorMessage;
     }
 
-    [MessageContract]
+    [DataContract]
     public class SendDataParams
     {
-        [MessageHeader]
+        [DataMember]
         public Channel From;
-        [MessageHeader]
+        [DataMember]
         public Channel To;
-        [MessageHeader]
+        [DataMember]
         public string Type;
 
-        [MessageBodyMember]
-        public Stream Data;
+        [DataMember]
+        public string Data;
     }
 }
