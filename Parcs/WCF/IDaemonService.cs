@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
@@ -19,7 +20,14 @@ namespace Parcs.WCF
 
         [OperationContract]
         Task SendFileAsync(FileTransferData data);
+        
         [OperationContract]
         Task<bool> TestWork();
+
+        [OperationContract]
+        Task<MachineInfo> GetMachineInfo();
+
+        [OperationContract]
+        Task<List<ControlSpaceInfo>> GetControlSpaces();
     }
 }

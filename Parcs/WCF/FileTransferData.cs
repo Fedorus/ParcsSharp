@@ -18,8 +18,10 @@ namespace Parcs.WCF
         public string FileName { get; set; }
         [DataMember]
         public string Path { get; set; }
+        
         [DataMember]
         public string Hash { get; private set; }
+        
         [DataMember]
         public ControlSpace ControlSpace { get; set; }
 

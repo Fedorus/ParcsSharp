@@ -12,13 +12,18 @@ namespace Parcs.WCF
     {
         [OperationContract]
         Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space);
+        
         [OperationContract]
         Task<ReceiveConfirmation> SendAsync(SendDataParams sendData);
+        
         [OperationContract]
         Task<bool> AddChannelAsync(Channel to, Channel channel);
-
+        
         [OperationContract]
         Task<bool> TestWork();
+
+        [OperationContract]
+        Task<PointInfoDTO> GetInfoAsync(Channel to);
     }
 
     [DataContract]
@@ -39,7 +44,6 @@ namespace Parcs.WCF
         public Channel To;
         [DataMember]
         public string Type;
-
         [DataMember]
         public string Data;
     }

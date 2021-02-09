@@ -29,7 +29,7 @@ namespace Parcs.WCF
                 baseAddress);
             //_host.Description.Behaviors.Add(new System.ServiceModel.Discovery.ServiceDiscoveryBehavior())
             //starts
-            var smb = _host.Description.Behaviors.Find<ServiceMetadataBehavior>();
+            /* var smb = _host.Description.Behaviors.Find<ServiceMetadataBehavior>();
             if (smb ==null)
             {
                 smb = new ServiceMetadataBehavior();
@@ -38,7 +38,7 @@ namespace Parcs.WCF
             smb.HttpGetUrl = new Uri($"http://localhost:{port+2}/met");
             smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
             _host.Description.Behaviors.Add(smb);
-            _host.AddServiceEndpoint(typeof(IDaemonService), new WSHttpBinding(), $"http://localhost:{port + 2}/met");
+            _host.AddServiceEndpoint(typeof(IDaemonService), new WSHttpBinding(), $"http://localhost:{port + 2}/met");*/
 
             _host.Open();
         }

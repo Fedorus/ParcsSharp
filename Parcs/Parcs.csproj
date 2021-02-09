@@ -42,13 +42,16 @@
     <Compile Include="Channel.cs" />
     <Compile Include="ChannelType.cs" />
     <Compile Include="ControlSpace.cs" />
+    <Compile Include="ControlSpaceInfo.cs" />
     <Compile Include="Daemon.cs" />
     <Compile Include="DataObjectsContainer.cs" />
     <Compile Include="DataTransferObject.cs" />
     <Compile Include="Logging\IParcsLogger.cs" />
     <Compile Include="Logging\TextFileLogger.cs" />
+    <Compile Include="MachineInfo.cs" />
     <Compile Include="PointCreationManager.cs" />
     <Compile Include="PointInfo.cs" />
+    <Compile Include="PointInfoDTO.cs" />
     <Compile Include="PointStartInfo.cs" />
     <Compile Include="PointType.cs" />
     <Compile Include="VisionFile.cs" />

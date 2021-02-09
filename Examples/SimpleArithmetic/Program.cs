@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
+using System.Threading;
 using System.Threading.Tasks;
 using Parcs;
 
@@ -16,15 +17,24 @@ namespace SimpleArithmetic
             var sw = new Stopwatch();
             sw.Start();
             var points = new List<Point>(400);
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i < 1; i++)
             {
                 var point = await cs.CreatePointAsync(i.ToString(), PointType.Any, ChannelType.TCP);
                 points.Add(point);
-                point.RunAsync(new PointStartInfo(TestMethod));
+                await point.RunAsync(new PointStartInfo(TestMethod));
             }
 
             int result = 0;
             //await Task.Delay(10000);
+
+            while (true)
+            {
+                await Task.Delay(1000);
+                await points[0].GetInfo();
+                await points[0].SendAsync(10);
+                await points[0].GetInfo();
+            }
+
             foreach (var item in points)
             {
                 for (int i = 0; i < N; i++)
@@ -43,12 +53,14 @@ namespace SimpleArithmetic
             int res = await point.GetAsync<int>();
             await info.ParentPoint.SendAsync(res);
         }
-        const int N = 100000;
+        const int N = 10;
         public static async Task TestMethod(PointInfo info)
         {
             for (int i = 0; i < N; i++)
             {
-               await info.ParentPoint.SendAsync(i);
+                Thread.Sleep(1000);
+                Console.WriteLine("Doing something");
+               await info.ParentPoint.GetAsync<int>();
             }
         }
     }

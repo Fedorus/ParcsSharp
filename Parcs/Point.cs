@@ -123,5 +123,10 @@ namespace Parcs
         {
             throw new System.NotImplementedException();
         }
+
+        public async Task GetInfo()
+        {
+            await _PointServiceClient.GetInfoAsync(Channel);
+        }
     }
 }

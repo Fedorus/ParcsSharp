@@ -10,7 +10,10 @@ using System.Threading.Tasks;
 
 namespace Parcs.WCF
 {
-    [ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, ConcurrencyMode = ConcurrencyMode.Multiple,  IncludeExceptionDetailInFaults = true)]
+    [ServiceBehavior(
+        InstanceContextMode = InstanceContextMode.Single, 
+        ConcurrencyMode = ConcurrencyMode.Multiple,  
+        IncludeExceptionDetailInFaults = true)]
     public class PointService : IPointService
     {
         public Dictionary<Guid, PointInfo> Points { get; set; } = new Dictionary<Guid, PointInfo>();
@@ -72,13 +75,12 @@ namespace Parcs.WCF
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
 
-                ((Task)method.Invoke(instance, new object[] { pointData }))
-                    .ContinueWith((t) =>
-                    {
+                pointData.PointTask = (Task)method.Invoke(instance, new object[] { pointData });
+                
+                pointData.PointTask.ContinueWith((t) => {
                         sw.Stop();
                         //Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");
-                    }
-                    ).ConfigureAwait(false);
+                    }).ConfigureAwait(false);
 
                 /*pointData.PointThread = new System.Threading.Thread( () =>
                 {
@@ -95,8 +97,13 @@ namespace Parcs.WCF
 
         public async Task<bool> TestWork()
         {
-            Task.Run(() => Task.Delay(10000));
             return true;
+        }
+
+        public async Task<PointInfoDTO> GetInfoAsync(Channel to)
+        {
+            Console.WriteLine(Points[to.PointID].PointTask.Status);
+            return new PointInfoDTO();
         }
     }
 }

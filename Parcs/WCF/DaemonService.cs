@@ -9,7 +9,13 @@ using System.ServiceModel.Description;
 
 namespace Parcs.WCF
 {
-    [ServiceBehavior(AutomaticSessionShutdown = false, ConcurrencyMode = ConcurrencyMode.Single, InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true)] //, ConcurrencyMode = ConcurrencyMode.Multiple
+    [ServiceBehavior(
+        AutomaticSessionShutdown = false, 
+        ConcurrencyMode = ConcurrencyMode.Single, 
+        InstanceContextMode = InstanceContextMode.Single, 
+        IncludeExceptionDetailInFaults = true,
+        UseSynchronizationContext = false)
+     ] //, ConcurrencyMode = ConcurrencyMode.Multiple
     public class DaemonService : IDaemonService
     {
         private string IP { get; set; }
@@ -28,13 +34,17 @@ namespace Parcs.WCF
             var baseAddress2 = new Uri("net.pipe://localhost/" + (port + 1));
             host.AddServiceEndpoint(typeof(IPointService), WCFSettings.GetNamedPipeBinding(),
                 baseAddress2);
-            var metadataAdress = new Uri($"http://localhost:{port + 3}/met");
-            var smb = new ServiceMetadataBehavior();
-            smb.HttpGetEnabled = true;
-            smb.HttpGetUrl = new Uri($"http://localhost:{port + 3}/met");
-            smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
-            host.Description.Behaviors.Add(smb);
-            host.AddServiceEndpoint(typeof(IPointService), new WSHttpBinding(), $"http://localhost:{port + 3}/met");
+            if (addMetadata)
+            {
+                var metadataAdress = new Uri($"http://localhost:{port + 3}/met");
+                var smb = new ServiceMetadataBehavior();
+                smb.HttpGetEnabled = true;
+                smb.HttpGetUrl = new Uri($"http://localhost:{port + 3}/met");
+                smb.MetadataExporter.PolicyVersion = PolicyVersion.Policy15;
+                host.Description.Behaviors.Add(smb);
+                host.AddServiceEndpoint(typeof(IPointService), new WSHttpBinding(), $"http://localhost:{port + 3}/met");
+            }
+
             host.Open();
 
             Console.WriteLine($"Daemon was hosted on URI:");
@@ -120,6 +130,16 @@ namespace Parcs.WCF
         public async Task<bool> TestWork()
         {
             return true;
+        }
+
+        public async Task<MachineInfo> GetMachineInfo()
+        {
+            return new MachineInfo();
+        }
+
+        public async Task<List<ControlSpaceInfo>> GetControlSpaces()
+        {
+            return new List<ControlSpaceInfo>();
         }
     }
 }

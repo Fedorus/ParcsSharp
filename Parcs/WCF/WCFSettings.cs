@@ -26,7 +26,7 @@ namespace Parcs.WCF
             MaxReceivedMessageSize = int.MaxValue,
             MaxBufferSize = int.MaxValue,
             SendTimeout = TimeSpan.FromHours(1),
-            ReceiveTimeout = TimeSpan.FromHours(1)
+            ReceiveTimeout = TimeSpan.FromHours(1), Security = new NetNamedPipeSecurity() { Mode = NetNamedPipeSecurityMode.None}
         };
     }
 }

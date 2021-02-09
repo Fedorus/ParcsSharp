@@ -14,6 +14,8 @@ namespace DaemonHost
     {
         static void Main(string[] args)
         {
+            
+            
             Parcs.WCF.DaemonHost host = new Parcs.WCF.DaemonHost();
             host.Start(666);
             Console.ReadLine();
