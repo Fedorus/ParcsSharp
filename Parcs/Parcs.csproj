@@ -46,6 +46,8 @@
     <Compile Include="Daemon.cs" />
     <Compile Include="DataObjectsContainer.cs" />
     <Compile Include="DataTransferObject.cs" />
+    <Compile Include="IParcsSerializer.cs" />
+    <Compile Include="JsonDotNetParcsSerializer.cs" />
     <Compile Include="Logging\IParcsLogger.cs" />
     <Compile Include="Logging\TextFileLogger.cs" />
     <Compile Include="MachineInfo.cs" />

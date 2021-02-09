@@ -25,15 +25,7 @@ namespace SimpleArithmetic
             }
 
             int result = 0;
-            //await Task.Delay(10000);
 
-            while (true)
-            {
-                await Task.Delay(1000);
-                await points[0].GetInfo();
-                await points[0].SendAsync(10);
-                await points[0].GetInfo();
-            }
 
             foreach (var item in points)
             {
@@ -58,9 +50,7 @@ namespace SimpleArithmetic
         {
             for (int i = 0; i < N; i++)
             {
-                Thread.Sleep(1000);
-                Console.WriteLine("Doing something");
-               await info.ParentPoint.GetAsync<int>();
+                await info.ParentPoint.SendAsync(i);
             }
         }
     }

@@ -20,9 +20,10 @@ namespace Parcs
         /// <summary>
         /// Channel that used to choose optimal channel type with point
         /// </summary>
-        internal Channel _pointThatUsingThisPoint { get; }
-        internal ControlSpace _controlSpace = null;
-        readonly IPointService _PointServiceClient;
+        internal Channel PointThatUsingThisPoint { get; }
+        internal readonly ControlSpace _controlSpace = null;
+        readonly IPointService _pointServiceClient;
+        public IParcsSerializer Serializer { get; set; } = new JsonDotNetParcsSerializer(); 
         /// <summary>
         /// Constructor 
         /// </summary>
@@ -34,7 +35,7 @@ namespace Parcs
             {
                 currentPointChannel = channelToRemotePoint;
             }
-            _pointThatUsingThisPoint = currentPointChannel;
+            PointThatUsingThisPoint = currentPointChannel;
             Channel = channelToRemotePoint;
             _controlSpace = space;/*
             if (channelToRemotePoint.IP == currentPointChannel.IP && channelToRemotePoint.Type != ChannelType.TCP)
@@ -43,13 +44,13 @@ namespace Parcs
             }
             else*/
             {
-                _PointServiceClient = ChannelFactory<IPointService>.CreateChannel(WCFSettings.GetTcpBinding(), new EndpointAddress($"net.tcp://{channelToRemotePoint.IP}:{channelToRemotePoint.Port}"));
+                _pointServiceClient = ChannelFactory<IPointService>.CreateChannel(WCFSettings.GetTcpBinding(), new EndpointAddress($"net.tcp://{channelToRemotePoint.IP}:{channelToRemotePoint.Port}"));
             } //
         }
 
         public async Task AddChannelAsync(Channel channel)
         {
-            await _PointServiceClient.AddChannelAsync(Channel, channel);
+            await _pointServiceClient.AddChannelAsync(Channel, channel);
         }
 
         public Task CancelAsync()
@@ -64,7 +65,7 @@ namespace Parcs
             {
                 if (e.ReceivedItem == null || tcs.Task.IsCompleted == true)
                     return;
-                if (e.ReceivedItem.From == Channel && e.ReceivedItem.To == _pointThatUsingThisPoint && e.ReceivedItem.Type == typeof(T).ToString())
+                if (e.ReceivedItem.From == Channel && e.ReceivedItem.To == PointThatUsingThisPoint && e.ReceivedItem.Type == typeof(T).ToString())
                 {
                     var returnValue = e.ReceivedItem;
                     e.ReceivedItem = null;
@@ -73,7 +74,7 @@ namespace Parcs
                     //using (var reader = new StreamReader(returnValue.Data)) //TODO deserialization interface
                     {
                         //data = JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
-                        data = JsonConvert.DeserializeObject<T>(returnValue.Data);
+                        data = Serializer.Deserialize<T>(returnValue.Data);// JsonConvert.DeserializeObject<T>(returnValue.Data);
                     }
                     Task.Factory.StartNew(()=> tcs.TrySetResult(data), TaskCreationOptions.LongRunning).ConfigureAwait(false);
                 }
@@ -83,7 +84,7 @@ namespace Parcs
             {
                 var result = _controlSpace.CurrentPoint.Data._items.Find(x =>
                     x.From == Channel &&
-                    x.To == _pointThatUsingThisPoint &&
+                    x.To == PointThatUsingThisPoint &&
                     x.Type == typeof(T).ToString()
                     );
                 if (result != null)
@@ -93,7 +94,7 @@ namespace Parcs
                      {
                          return JsonConvert.DeserializeObject<T>(reader.ReadToEnd());
                      }*/
-                    return JsonConvert.DeserializeObject<T>(result.Data);
+                    return Serializer.Deserialize<T>(result.Data);
                 }
 
                 _controlSpace.CurrentPoint.Data.OnAdd += WaitForResultEvent;
@@ -108,14 +109,14 @@ namespace Parcs
         }
         public async Task RunAsync(PointStartInfo pointStartInfo)
         {
-             await _PointServiceClient.StartAsync(_pointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
+             await _pointServiceClient.StartAsync(PointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
         }
         public async Task<bool> SendAsync<T>(T t)
         {
-            return (await _PointServiceClient.SendAsync(new SendDataParams(){
-                From =  _pointThatUsingThisPoint,
+            return (await _pointServiceClient.SendAsync(new SendDataParams(){
+                From =  PointThatUsingThisPoint,
                 To = Channel,
-                Data = JsonConvert.SerializeObject(t),
+                Data = Serializer.Serialize(t),
                 Type = t.GetType().ToString() })
                .ConfigureAwait(false)).Result;
         }
@@ -126,7 +127,7 @@ namespace Parcs
 
         public async Task GetInfo()
         {
-            await _PointServiceClient.GetInfoAsync(Channel);
+            await _pointServiceClient.GetInfoAsync(Channel);
         }
     }
 }
