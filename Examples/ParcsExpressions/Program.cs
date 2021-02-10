@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -12,13 +13,14 @@ namespace ParcsExpressions
     {
         public static async Task Main(string[] args)
         {
-            ControlSpace cs = new ControlSpace("Simple stuff");
+            ControlSpace cs = new ControlSpace("Simple stuff", new List<string>(){ "net.tcp://192.168.50.210:666" });
             var sw = new Stopwatch();
             sw.Start();
             var points = new List<Point>(400);
             for (int i = 0; i < 1; i++)
             {
                 var point = await cs.CreatePointAsync(i.ToString(), PointType.Any, ChannelType.TCP);
+                await cs.AddDirectoryAsync(Directory.GetCurrentDirectory());
                 point.Serializer = new ExpressionSerializer();
                 points.Add(point);
                 await point.RunAsync(new PointStartInfo(TestMethod));

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Remoting;
@@ -61,7 +62,7 @@ namespace Parcs.WCF
             {
                 object instance = null;
                 MethodBase method = null;
-                var assembly = Assembly.LoadFrom(info.AssemblyName);
+                var assembly = Assembly.LoadFrom(Directory.GetCurrentDirectory()+'\\'+space.Name+'\\'+ info.AssemblyName);
                 if (info.IsStatic)
                 {
                     var type = assembly.GetType(info.NamespaceAndClass);
@@ -70,16 +71,16 @@ namespace Parcs.WCF
                 else
                 {
                     instance = assembly.CreateInstance(info.NamespaceAndClass);
-                    method = instance.GetType().GetMethod(info.MethodName);
+                    method = instance?.GetType().GetMethod(info.MethodName);
                 }
-                Stopwatch sw = new Stopwatch();
+                var sw = new Stopwatch();
                 sw.Start();
 
-                pointData.PointTask = (Task)method.Invoke(instance, new object[] { pointData });
+                pointData.PointTask = (Task)method?.Invoke(instance, new object[] { pointData });
                 
-                pointData.PointTask.ContinueWith((t) => {
+                pointData.PointTask?.ContinueWith((t) => {
                         sw.Stop();
-                        //Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");
+                        Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");
                     }).ConfigureAwait(false);
 
                 /*pointData.PointThread = new System.Threading.Thread( () =>
