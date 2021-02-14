@@ -81,7 +81,11 @@ namespace Parcs.WCF
                 pointData.PointTask?.ContinueWith((t) => {
                         sw.Stop();
                         Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");
-                    }).ConfigureAwait(false);
+                        if (t.Status == TaskStatus.Faulted)
+                        {
+                            Console.WriteLine(t.Exception);
+                        }
+                }).ConfigureAwait(false);
 
                 /*pointData.PointThread = new System.Threading.Thread( () =>
                 {
