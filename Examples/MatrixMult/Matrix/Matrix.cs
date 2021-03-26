@@ -9,18 +9,26 @@ using System.Threading.Tasks;
 
 namespace MatrixMult
 {
-    [DataContract]
     [Serializable]
     public class Matrix
     {
-        [DataMember]
-        private float[,] mfMatrix;
-        [DataMember]
-        private int mHeight;
-        [DataMember]
-        private int mWidth;
+        public float[,] mfMatrix { get; set; }
+        public int mHeight { get; set; }
+        public int mWidth { get; set; }
 
         public Matrix(String filename) { Load(filename); }
+        [OnDeserializing]
+        private void SetCountryRegionDefault(StreamingContext sc)
+        {
+            Console.WriteLine( sc.Context);
+        }
+        public Matrix(float[,] matr)
+        {
+            mfMatrix = matr;
+            mHeight = mfMatrix.GetLength(0);
+            mWidth = mfMatrix.GetLength(1);
+        }
+
         public Matrix(int iHeight, int iWidth)
         {
             mHeight = iHeight;

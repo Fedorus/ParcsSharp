@@ -8,10 +8,13 @@ namespace Parcs
     [DataContract]
     internal class PointCreationManager 
     {
-        [DataMember]
         Random rand = new Random();
         public virtual Daemon ChooseDaemon(List<Daemon> daemons)
         {
+            if (daemons.Count == 1)
+            {
+                return daemons[0];
+            }
             return daemons[rand.Next(daemons.Count)];
         }
     }

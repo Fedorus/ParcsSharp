@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Parcs.WCF;
+using Parcs.WCF.Cheats;
 
 namespace Parcs
 {
@@ -37,15 +38,15 @@ namespace Parcs
             }
             PointThatUsingThisPoint = currentPointChannel;
             Channel = channelToRemotePoint;
-            _controlSpace = space;/*
-            if (channelToRemotePoint.IP == currentPointChannel.IP && channelToRemotePoint.Type != ChannelType.TCP)
+            _controlSpace = space;
+          /*  if (channelToRemotePoint.IP == currentPointChannel.IP && channelToRemotePoint.Type != ChannelType.TCP)
             {
-                _PointServiceClient = ChannelFactory<IPointService>.CreateChannel(WCFSettings.GetNamedPipeBinding(), new EndpointAddress($"net.pipe://{channelToRemotePoint.IP}/{channelToRemotePoint.Port}"));
+                _pointServiceClient = ChannelFactory<IPointService>.CreateChannel(WCFSettings.GetNamedPipeBinding(), new EndpointAddress($"net.pipe://{channelToRemotePoint.IP}/{channelToRemotePoint.Port}"));
             }
             else*/
             {
                 _pointServiceClient = ChannelFactory<IPointService>.CreateChannel(WCFSettings.GetTcpBinding(), new EndpointAddress($"net.tcp://{channelToRemotePoint.IP}:{channelToRemotePoint.Port}"));
-            } //
+            } 
         }
 
         public async Task AddChannelAsync(Channel channel)
@@ -109,7 +110,7 @@ namespace Parcs
         }
         public async Task RunAsync(PointStartInfo pointStartInfo)
         {
-             await _pointServiceClient.StartAsync(PointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace);
+             await _pointServiceClient.StartAsync(PointThatUsingThisPoint, Channel, pointStartInfo, _controlSpace.ToDto());
         }
         public async Task<bool> SendAsync<T>(T t)
         {

@@ -3,9 +3,11 @@ using Parcs.WCF.Cheats;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using Parcs.WCF.DTO;
 
 namespace Parcs
 {
@@ -23,21 +25,20 @@ namespace Parcs
         /// </summary>
         [DataMember]
         public Guid ID { get; internal set; }
-        [DataMember]
-        internal List<Channel> ChannelsOnCurrentDaemon { get; set; } = new List<Channel>();
         public string PointDirectory { get => $"{(string.IsNullOrWhiteSpace(Name) ? ID.ToString() : Name)}/"; } 
+        
         [DataMember]
         internal List<string> DaemonAdresses { get; set; } = new List<string>();
         public List<Daemon> Daemons { get; internal set; } = new List<Daemon>();
         public static DaemonHost hostedDaemon;
-        [DataMember]
+        
         PointCreationManager Creator { get; set; } = new PointCreationManager();
         /// <summary>
         /// Designed only for Main point.
         /// </summary>
         public Point CurrentPoint { get; internal set; }
         #region Constructors
-        public ControlSpace(string name, int port = 666) 
+        public ControlSpace(string name, List<string> list = null, int port = 666) 
         {
             this.Name = name;
             ID = Guid.NewGuid();
@@ -49,31 +50,25 @@ namespace Parcs
             AddDaemons(hostedDaemon.Address);
             CurrentPoint = Daemons[0].CreatePointAsync("Main", ChannelType.Any).GetAwaiter().GetResult();
             CurrentPoint.RunAsync(null).GetAwaiter().GetResult();
-            CurrentPoint = hostedDaemon._service.PointService.Points[CurrentPoint.Channel.PointID].CurrentPoint;
+            CurrentPoint = hostedDaemon._service.PointService.Points[CurrentPoint.Channel.PointID].Point;
+            if(list !=null)
+                AddDaemons(list.ToArray());
         }
-        public ControlSpace(string name, string daemonUri, int port = 666) : this(name, port)
+        public ControlSpace(string name, string daemonUri, int port = 666) 
+            : this(name, new List<string>(){daemonUri}, port)
         {
-            AddDaemons(daemonUri);
         }
-        public ControlSpace(string name, List<string> list, int port = 666) : this(name, port)
-        {
-            AddDaemons(list.ToArray());
-        }
-        #endregion
 
-        /// <summary>
-        /// Used just for fix of WCF deserialization. Which don`t populate Daemons properly
-        /// </summary>
-        internal void CheckDaemons()
+        internal ControlSpace(ControlSpaceDTO dto)
         {
-            if (Daemons==null)
-            {
-                var temp = DaemonAdresses;
-                DaemonAdresses = new List<string>();
-                Daemons = new List<Daemon>();
-                AddDaemons(temp.ToArray());
-            }
+            Name = dto.Name;
+            DaemonAdresses = dto.DaemonAddressees;
+            ID = dto.ID;
+            Daemons.AddRange(dto.DaemonAddressees.Select(x=>new Daemon(x, this)));
         }
+
+        #endregion
+        
         internal void AddDaemons(params string[] items)
         {
             for (int i = 0; i < items.Length; i++)
@@ -128,12 +123,12 @@ namespace Parcs
         private async Task AddDirectoryRecursiveAsync(string directory, string startingDirecory)
         {
             var directories = Directory.GetDirectories(directory);
-            var RecursiveTasks = new Task[directories.Length];
+            var recursiveTasks = new Task[directories.Length];
             for (int i = 0; i < directories.Length; i++)
             {
-                RecursiveTasks[i] = AddDirectoryRecursiveAsync(directories[i], startingDirecory);
+                recursiveTasks[i] = AddDirectoryRecursiveAsync(directories[i], startingDirecory);
             }
-            await Task.WhenAll(RecursiveTasks);
+            await Task.WhenAll(recursiveTasks);
             var files = Directory.GetFiles(directory);
             Parallel.For(0, files.Length, async (i) => { await AddFileAsync(files[i], directory.Remove(0, startingDirecory.Length)); });
         }

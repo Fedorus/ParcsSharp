@@ -20,6 +20,7 @@ namespace ParcsExpressions
             var points = new List<Point>(400);
             
             await cs.AddDirectoryAsync(Directory.GetCurrentDirectory());
+            
             for (int i = 0; i < 1; i++)
             {
                 var point = await cs.CreatePointAsync(i.ToString(), PointType.Any, ChannelType.TCP);
@@ -80,7 +81,6 @@ namespace ParcsExpressions
                 new ExampleClass() {Id = 4, Name = "4"},
                 new ExampleClass() {Id = 5, Name = "5"},
             };
-            
             var item = await info.ParentPoint.GetAsync<Expression<Func<List<ExampleClass>, object>>>();
             Console.WriteLine(item.Compile().Invoke(list));
         }

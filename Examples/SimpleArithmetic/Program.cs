@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Threading;
@@ -14,6 +15,7 @@ namespace SimpleArithmetic
         public static async Task Main(string[] args)
         {
             ControlSpace cs = new ControlSpace("Simple stuff");
+            await cs.AddDirectoryAsync(Directory.GetCurrentDirectory());
             var sw = new Stopwatch();
             sw.Start();
             var points = new List<Point>(400);
@@ -25,7 +27,6 @@ namespace SimpleArithmetic
             }
 
             int result = 0;
-
 
             foreach (var item in points)
             {
@@ -40,7 +41,7 @@ namespace SimpleArithmetic
         }
         public static async Task RecurciveMethod(PointInfo info)
         {
-            var point = await info.CurrentControlSpace.CreatePointAsync(info.CurrentPoint.Channel.Name + ".1");
+            var point = await info.ControlSpace.CreatePointAsync(info.Point.Channel.Name + ".1");
             await point.RunAsync(new PointStartInfo(TestMethod));
             int res = await point.GetAsync<int>();
             await info.ParentPoint.SendAsync(res);

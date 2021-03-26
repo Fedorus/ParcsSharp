@@ -8,6 +8,7 @@ using System.Runtime.Remoting;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using Parcs.WCF.DTO;
 
 namespace Parcs.WCF
 {
@@ -38,25 +39,24 @@ namespace Parcs.WCF
             {
                 throw new Exception("Point not found");
             }
-            lock (pointData.CurrentPoint.Data)
+            lock (pointData.Point.Data)
             {
-                pointData.CurrentPoint.Data.Add(sendData);
+                pointData.Point.Data.Add(sendData);
             }
 //Console.WriteLine("Server wasted:  "  +s.Elapsed);
             return new ReceiveConfirmation() { Result = true };
         }
 
-        public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space)
+        public async Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpaceDTO space)
         {
             var pointData = Points.ContainsKey(to.PointID) ? Points[to.PointID] : throw new Exception("Point not found");
-            pointData.CurrentControlSpace = space;
-            pointData.CurrentControlSpace.CheckDaemons();
+            pointData.ControlSpace = new ControlSpace(space);
 
-            var currentPoint = new Point(to, to, space);
+            var currentPoint = new Point(to, to, pointData.ControlSpace);
             currentPoint.Data = new DataObjectsContainer<SendDataParams>();
             pointData._currentPoint = currentPoint;
-            pointData.CurrentControlSpace.CurrentPoint = currentPoint;
-            pointData.ParentPoint = new Point(from, to, space);
+            pointData.ControlSpace.CurrentPoint = currentPoint;
+            pointData.ParentPoint = new Point(from, to, pointData.ControlSpace);
 
             if (info != null)
             {
@@ -75,9 +75,7 @@ namespace Parcs.WCF
                 }
                 var sw = new Stopwatch();
                 sw.Start();
-
                 pointData.PointTask = (Task)method?.Invoke(instance, new object[] { pointData });
-                
                 pointData.PointTask?.ContinueWith((t) => {
                         sw.Stop();
                         Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");

@@ -77,9 +77,9 @@ namespace Parcs
         }
         public static async Task AsyncPointMethodExample(PointInfo currentPointInfo)
         {
-            Point currentPoint = currentPointInfo.CurrentPoint;
+            Point currentPoint = currentPointInfo.Point;
             Point parentPoint = currentPointInfo.ParentPoint;
-            ControlSpace cs = currentPointInfo.CurrentControlSpace;
+            ControlSpace cs = currentPointInfo.ControlSpace;
             //
             Point otherPoint = currentPointInfo.GetPoint("Getting point by channel name");
            // otherPoint = currentPointInfo.GetPoint(new Channel("", ChannelType.TCP));// at what stage it should contain something?

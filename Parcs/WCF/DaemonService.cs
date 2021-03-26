@@ -6,6 +6,7 @@ using System.ServiceModel;
 using System.IO;
 using Parcs.WCF.Cheats;
 using System.ServiceModel.Description;
+using Parcs.WCF.DTO;
 
 namespace Parcs.WCF
 {
@@ -21,6 +22,7 @@ namespace Parcs.WCF
         private string IP { get; set; }
         private int Port { get; set; }
         public string Address => $"net.tcp://{IP}:{Port}/";
+        public PerformanceMonitor Monitor { get; set; }
         public DaemonService(int port = 666, bool addMetadata = false)
         {
             Port = port;
@@ -46,7 +48,7 @@ namespace Parcs.WCF
             }
 
             host.Open();
-
+            Monitor = new PerformanceMonitor(baseAddress.ToString());
             Console.WriteLine($"Daemon was hosted on URI:");
             Console.WriteLine($"net.tcp://{IP}:{Port}");
             Console.WriteLine($"Point service hosted on addresses:");
@@ -56,41 +58,23 @@ namespace Parcs.WCF
         //public List<ControlSpace> controlSpaces { get; set; } = new List<ControlSpace>();
         public ServiceHost host;
         public PointService PointService;
-      
-        private Uri MakeUri(ChannelType type)
+        
+        public async Task<Channel> CreatePointAsync(string Name, ChannelType channelType, ControlSpaceDTO controlSpace)
         {
-            switch (type)
-            {
-                case ChannelType.Any:
-                    //return host.BaseAddresses[0].ToString;
-                case ChannelType.TCP:
-                    break;
-                case ChannelType.NamedPipe:
-                    break;
-                default:
-                    break;
-            }
-            return null;
-        }
-        public async Task<Channel> CreatePointAsync(string Name, ChannelType channelType, ControlSpace controlSpace)
-        {
-           // var cs = GetOrCreateControlSpace(controlSpace);
             Guid newPointGuid = Guid.NewGuid();
-
-            var pointInfo = new PointInfo(controlSpace, Name);
+            Channel channel = new Channel(Name, channelType, IP, Port + 1, newPointGuid);
+            var controlSpace1 = new ControlSpace(controlSpace);
+            var pointInfo = new PointInfo(controlSpace1, channel);
 
             PointService.Points.Add(newPointGuid, pointInfo);
-            
-            Channel channel = new Channel(Name, channelType, IP, Port + 1, newPointGuid);
-            //cs.ChannelsOnCurrentDaemon.Add(channel);
             return channel;
         }
-        public async Task DestroyControlSpaceAsync(ControlSpace data)
+        public async Task DestroyControlSpaceAsync(ControlSpaceDTO data)
         {
             List<Guid> points = new List<Guid>();
             foreach (var item in PointService.Points)
             {
-                if (item.Value.CurrentControlSpace.ID== data.ID)
+                if (item.Value.ControlSpace.ID== data.ID)
                 {
                     if (item.Value.PointTask.Status == TaskStatus.Running)
                     {
@@ -114,17 +98,11 @@ namespace Parcs.WCF
             {
                 if (data.Hash == FileChecksum.Calculate(fullFilename))
                 {
-#if DEBUG
-                    Console.WriteLine($"File {data.Path}\\{data.FileName} already exist");
-#endif
                     return;
                 }
             }
             Directory.CreateDirectory(futureFilePath);
             File.WriteAllBytes(fullFilename, data.FileData);
-#if DEBUG
-            Console.WriteLine($"{data.Path}\\{data.FileName} transfered");
-#endif
         }
 
         public async Task<bool> TestWork()
@@ -134,12 +112,19 @@ namespace Parcs.WCF
 
         public async Task<MachineInfo> GetMachineInfo()
         {
-            return new MachineInfo();
+            return Monitor.GetCurrent();
         }
 
         public async Task<List<ControlSpaceInfo>> GetControlSpaces()
         {
-            return new List<ControlSpaceInfo>();
+            var list = new List<ControlSpaceInfo>();
+            foreach (IGrouping<string, KeyValuePair<Guid,PointInfo>> keyValuePairs in PointService.Points.GroupBy(x=>x.Value.ControlSpace.Name))
+            {
+                var info = new ControlSpaceInfo(keyValuePairs.Key, keyValuePairs.Select(x=>x.Value));
+                list.Add(info);
+            }
+
+            return list;
         }
     }
 }

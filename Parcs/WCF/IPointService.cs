@@ -4,6 +4,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using Parcs;
+using Parcs.WCF.DTO;
 
 namespace Parcs.WCF
 {
@@ -11,7 +12,7 @@ namespace Parcs.WCF
     public interface IPointService
     {
         [OperationContract]
-        Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpace space);
+        Task<bool> StartAsync(Channel from, Channel to, PointStartInfo info, ControlSpaceDTO space);
         
         [OperationContract]
         Task<ReceiveConfirmation> SendAsync(SendDataParams sendData);

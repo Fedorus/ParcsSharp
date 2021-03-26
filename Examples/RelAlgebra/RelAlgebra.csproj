@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net48</TargetFramework>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\Parcs\Parcs.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="MongoDB.Bson" Version="2.12.0" />
+    </ItemGroup>
+
+</Project>

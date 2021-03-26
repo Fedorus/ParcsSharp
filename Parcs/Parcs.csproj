@@ -57,9 +57,12 @@
     <Compile Include="PointStartInfo.cs" />
     <Compile Include="PointType.cs" />
     <Compile Include="VisionFile.cs" />
+    <Compile Include="WCF\Cheats\Converter.cs" />
     <Compile Include="WCF\Cheats\FileChecksum.cs" />
+    <Compile Include="WCF\Cheats\PerformanceMonitor.cs" />
     <Compile Include="WCF\DaemonHost.cs" />
     <Compile Include="WCF\DaemonService.cs" />
+    <Compile Include="WCF\DTO\ControlSpaceDTO.cs" />
     <Compile Include="WCF\FileTransferData.cs" />
     <Compile Include="WCF\IDaemonService.cs" />
     <Compile Include="WCF\IPointService.cs" />
@@ -73,6 +76,7 @@
       <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml" />

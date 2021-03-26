@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
+using Parcs.WCF.DTO;
 
 namespace Parcs.WCF
 {
@@ -13,10 +14,10 @@ namespace Parcs.WCF
     public interface IDaemonService 
     {
         [OperationContract]
-        Task<Channel> CreatePointAsync(string Name, ChannelType channelType, ControlSpace controlSpaceData);
+        Task<Channel> CreatePointAsync(string Name, ChannelType channelType, ControlSpaceDTO controlSpaceData);
 
         [OperationContract]
-        Task DestroyControlSpaceAsync(ControlSpace data);
+        Task DestroyControlSpaceAsync(ControlSpaceDTO data);
 
         [OperationContract]
         Task SendFileAsync(FileTransferData data);
