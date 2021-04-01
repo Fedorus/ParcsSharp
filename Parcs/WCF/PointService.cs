@@ -73,12 +73,16 @@ namespace Parcs.WCF
                     instance = assembly.CreateInstance(info.NamespaceAndClass);
                     method = instance?.GetType().GetMethod(info.MethodName);
                 }
+                if (method == null)
+                    throw new Exception("method === null");
                 var sw = new Stopwatch();
                 sw.Start();
-                pointData.PointTask = (Task)method?.Invoke(instance, new object[] { pointData });
-                pointData.PointTask?.ContinueWith((t) => {
+                pointData.PointTask = (Task)method.Invoke(instance, new object[] { pointData });
+                pointData.PointTask.ContinueWith((t) => {
                         sw.Stop();
+                        #if DEBUG
                         Console.WriteLine($"point task {to.Name} done in {sw.Elapsed} task status {t.Status}");
+                        #endif
                         if (t.Status == TaskStatus.Faulted)
                         {
                             Console.WriteLine(t.Exception);

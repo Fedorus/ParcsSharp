@@ -1,43 +1,46 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+using System.Linq;
 using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
+using RelAlgebra.Items;
 
 namespace RelAlgebra.Db
 {
-    public class Database : IDisposable, IDb
+    public class InMemoryDb : IDisposable, IDb
     {
-        private readonly string _path;
-
-        public Database(string path)
+        private MemoryStream ms;
+        public InMemoryDb(byte[] bytes)
         {
-            _path = path;
+            ms = new MemoryStream(bytes);
+        }
+
+        public InMemoryDb()
+        {
+            ms = new MemoryStream();
         }
 
         public IEnumerable<LazyBsonDocument> ReadAll()
         {
-            using var file = File.OpenRead(_path);
-            using BsonBinaryReader reader = new BsonBinaryReader(file);
+            ms.Seek(0, SeekOrigin.Begin);
+            using BsonBinaryReader reader = new BsonBinaryReader(ms);
             reader.ReadStartDocument();
             reader.ReadStartArray();
             while (reader.State != BsonReaderState.EndOfArray)
             {
                 yield return new LazyBsonDocument(reader.ReadRawBsonDocument());
                 reader.ReadBsonType();
-                //Console.WriteLine();
-                //Console.WriteLine(reader.State);
             }
         }
 
         public void WriteAll(IEnumerable<LazyBsonDocument> items)
         {
-            using FileStream file = File.OpenWrite(_path);
-            using BsonBinaryWriter writer = new BsonBinaryWriter(file);
+            ms.Dispose();
+            ms = new MemoryStream();
+            using BsonBinaryWriter writer = new BsonBinaryWriter(ms);
             
             writer.WriteStartDocument();
 
@@ -45,7 +48,9 @@ namespace RelAlgebra.Db
 
             foreach (var item in items)
             {
-                writer.WriteRawBsonDocument(item.Slice);
+                BsonSerializer.Serialize(writer, new BsonDocument(item.Elements));
+                
+                //writer.WriteRawBsonDocument( item.Slice);
             }
             
             writer.WriteEndArray();
@@ -56,16 +61,15 @@ namespace RelAlgebra.Db
         }
 
         private BsonBinaryWriter _writer = null;
-        private FileStream _writerFileStream = null;
         public void StartWrite()
         {
-            _writerFileStream = File.OpenWrite(_path);
-            _writer = new BsonBinaryWriter(_writerFileStream);
+            ms.Dispose();
+            ms = new MemoryStream();
+            _writer = new BsonBinaryWriter(ms);
             _writer.WriteStartDocument();
             _writer.WriteStartArray("Docs");
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Write(LazyBsonDocument item)
         {
             _writer.WriteRawBsonDocument(item.Slice);
@@ -86,19 +90,22 @@ namespace RelAlgebra.Db
             
             _writer.Dispose();
             _writer = null;
-            _writerFileStream.Dispose();
-            _writerFileStream = null;
+        }
+        
+        public void Dispose()
+        {
+            ms?.Dispose();
         }
 
         public byte[] ToByteArray()
         {
-            return File.ReadAllBytes(_path);
+            return ms.ToArray();
         }
 
-        public void Dispose()
+        public void ToFile(string path)
         {
-            _writer?.Dispose();
-            _writerFileStream?.Dispose();
+            using var file = File.OpenWrite(path);
+            ms.CopyTo(file);
         }
     }
 }

@@ -9,13 +9,29 @@ using RelAlgebra.Items;
 
 namespace RelAlgebra
 {
-    public static class BetaFiltrationFile
+    public class BetaFiltration
     {
-         private const int ItemsNumber = 15_000_000;
+        private const int ItemsNumber = 2_000_000;
         private const int RelPointNumber = 2;
         public static async Task StartAsync(List<string> daemonsUrls)
         {
             TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            await TestBetaFiltrationAsync(daemonsUrls);
+            await TestBetaFiltrationAsync(daemonsUrls);
+            await TestBetaFiltrationAsync(daemonsUrls);
+            await TestBetaFiltrationAsync(daemonsUrls);
+            await TestBetaFiltrationAsync(daemonsUrls);
+            await TestBetaFiltrationAsync(daemonsUrls);
+            await TestBetaFiltrationAsync(daemonsUrls);
+            await TestBetaFiltrationAsync(daemonsUrls);
             await TestBetaFiltrationAsync(daemonsUrls);
             TestOneThreaded();
             //await TestBetaFiltrationAsync(daemonsUrls);
@@ -23,6 +39,7 @@ namespace RelAlgebra
         static void TestOneThreaded()
         {
             var data = ItemsGenerator.GenerateSmall(ItemsNumber*RelPointNumber);
+
             data[0].NItems = 5;
             
             
@@ -55,7 +72,8 @@ namespace RelAlgebra
             await resPoint.SendAsync(command2);
 
             await resPoint.GetAsync<bool>();
-            Console.WriteLine($"FiltrationFile done in {sw.Elapsed}");
+            Console.WriteLine($"Filtration done in {sw.Elapsed}");
+            await c.Daemons[0].DestroyControlSpaceAsync(c);
         }
 
 
@@ -118,7 +136,7 @@ namespace RelAlgebra
                 controlSpaceInfo = await space.Daemons[0].GetControlSpacesAsync();
                 var waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
                     .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith("R[1]["))).ToList();
-                Console.WriteLine($"Waiting from: {waitFromPoints.Count()}");
+                //Console.WriteLine($"Waiting from: {waitFromPoints.Count()}");
                 foreach (var point in waitFromPoints.Select(x => x.Channel))
                 {
                     var result = await info.GetPoint(point).GetAsync<List<SmallItem>>();

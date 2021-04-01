@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ServiceModel;
 using System.Threading.Tasks;
 using Parcs.WCF.Cheats;
+using Parcs.WCF.DTO;
 
 namespace Parcs
 {
@@ -45,6 +46,11 @@ namespace Parcs
         public Task<List<ControlSpaceInfo>> GetControlSpacesAsync()
         {
             return _daemon.GetControlSpaces();
+        }
+
+        public Task DestroyControlSpaceAsync(ControlSpace info)
+        {
+            return _daemon.DestroyControlSpaceAsync(info.ToDto());
         }
     }
 }

@@ -19,11 +19,39 @@ namespace RelAlgebra
     {
         static async Task Main(string[] args)
         {
+            //TestInmemoryDatabaseClass();
             //await TestBinaryBson();
             //await TestDiscovery(null);
             //await BetaFiltration.StartAsync(null);
-            TestDatabaseClass();
+            //TestDatabaseClass();
+            await BetaFiltrationFilePercentage.StartAsync();
+            //await BetaFiltrationFile.StartAsync();
             //TestBsonDocuments();
+        }
+
+        public static void TestInmemoryDatabaseClass()
+        {
+            int n = 100;
+            var db = new InMemoryDb();
+
+            var item = ItemsGenerator.GenerateSimple(n, simpleItem => simpleItem);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            db.WriteAll(item.Select(x=>new LazyBsonDocument(x.ToBson())));
+            sw.Stop();
+            Console.WriteLine($"{n} written in {sw.Elapsed}");
+            
+            sw.Restart();
+            int i = 0;
+            foreach (var c in db.ReadAll())
+            {  
+                if (c["Number"] > 0L)
+                    i++;
+                c.Dispose();
+            }
+            sw.Stop();
+            
+            Console.WriteLine($"{n} read {i} in {sw.Elapsed}");
         }
 
         public static void TestDatabaseClass()

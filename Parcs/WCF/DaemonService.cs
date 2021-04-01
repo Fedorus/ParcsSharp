@@ -69,26 +69,26 @@ namespace Parcs.WCF
             PointService.Points.Add(newPointGuid, pointInfo);
             return channel;
         }
+
         public async Task DestroyControlSpaceAsync(ControlSpaceDTO data)
         {
             List<Guid> points = new List<Guid>();
             foreach (var item in PointService.Points)
             {
-                if (item.Value.ControlSpace.ID== data.ID)
+                if (item.Value.ControlSpace.ID == data.ID)
                 {
-                    if (item.Value.PointTask.Status == TaskStatus.Running)
-                    {
-                        item.Value.cancellationTokenSource.Dispose();
-                    }
                     points.Add(item.Key);
                 }
             }
-            foreach (var item in points)
-            {
-                points.Remove(item);
-                PointService.Points.Remove(item);
-            }
+
+            /*  foreach (var item in points)
+              {
+                  points.Remove(item);
+                  PointService.Points.Remove(item);
+              }*/
+            PointService.Points = new Dictionary<Guid, PointInfo>();
         }
+
         public async Task SendFileAsync(FileTransferData data)
         {
             string futureFilePath = $"{(string.IsNullOrWhiteSpace(data.ControlSpace.Name) ? data.ControlSpace.ID.ToString() : data.ControlSpace.Name)}/{((data.Path != null) ? data.Path.Trim('/') + "/" : "")}";

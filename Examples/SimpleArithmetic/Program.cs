@@ -14,6 +14,7 @@ namespace SimpleArithmetic
     {
         public static async Task Main(string[] args)
         {
+            
             ControlSpace cs = new ControlSpace("Simple stuff");
             await cs.AddDirectoryAsync(Directory.GetCurrentDirectory());
             var sw = new Stopwatch();

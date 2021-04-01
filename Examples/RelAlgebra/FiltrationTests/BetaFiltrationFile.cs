@@ -4,37 +4,75 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using Parcs;
+using RelAlgebra.Db;
 using RelAlgebra.Items;
 
 namespace RelAlgebra
 {
-    public class BetaFiltration
+    public static class BetaFiltrationFile
     {
-        private const int ItemsNumber = 15_000_000;
-        private const int RelPointNumber = 2;
-        public static async Task StartAsync(List<string> daemonsUrls)
+        private const int ItemsNumber = 1_000_00;
+        private const int RelPointNumber = 1;
+        public static async Task StartAsync(List<string> daemonsUrls=null)
         {
+            generateFiles();
             TestOneThreaded();
-            await TestBetaFiltrationAsync(daemonsUrls);
+            await TestBetaFiltrationFileAsync(daemonsUrls);
+            await TestBetaFiltrationFileAsync(daemonsUrls);
+            await TestBetaFiltrationFileAsync(daemonsUrls);
+            await TestBetaFiltrationFileAsync(daemonsUrls);
+            await TestBetaFiltrationFileAsync(daemonsUrls);
+            await TestBetaFiltrationFileAsync(daemonsUrls);
+            await TestBetaFiltrationFileAsync(daemonsUrls);
             TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            
             //await TestBetaFiltrationAsync(daemonsUrls);
         }
+
+        static void generateFiles()
+        {
+            var data = ItemsGenerator.GenerateSimple(ItemsNumber, simpleItem => simpleItem);
+            data[0].Number = 12;
+            using (Database db = new Database("E://test.bson"))
+            {
+                db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
+            }
+
+            for (int i = 0; i < RelPointNumber; i++)
+            {
+                var data2 = ItemsGenerator.GenerateSimple(ItemsNumber/RelPointNumber, simpleItem => simpleItem);
+                data2[0].Number = 5;
+                using (var db = new Database($"E://R[1][{i}].bson"))
+                {
+                    db.WriteAll(data2.Select(x=>new LazyBsonDocument(x.ToBson())));
+                }
+            }
+            
+        }
+
         static void TestOneThreaded()
         {
-            var data = ItemsGenerator.GenerateSmall(ItemsNumber*RelPointNumber);
-
-            data[0].NItems = 5;
-            
+            var data = ItemsGenerator.GenerateSimple(ItemsNumber, simpleItem => simpleItem);
+            data[0].Number = 5;
+            using Database db = new Database("E://test.bson");
+            db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
             
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var filterResult = data.Where(x => 
-                x.NItems == 5 ).ToList();
+            
+            var filterResult = db.ReadAll().Where(x => x["Number"] == 5).ToList();
             Console.WriteLine($"1th done in {sw.Elapsed} count = {filterResult.Count}");
         }
 
-        public static async Task TestBetaFiltrationAsync(List<string> daemonsUrls)
+        public static async Task TestBetaFiltrationFileAsync(List<string> daemonsUrls)
         {
             ControlSpace c = new ControlSpace("BetaFiltration", daemonsUrls);
             await c.AddDirectoryAsync(Directory.GetCurrentDirectory());
@@ -56,10 +94,10 @@ namespace RelAlgebra
             await resPoint.SendAsync(command2);
 
             await resPoint.GetAsync<bool>();
-            Console.WriteLine($"Filtration done in {sw.Elapsed}");
+            Console.WriteLine($"FiltrationFile done in {sw.Elapsed}");
+            await c.Daemons[0].DestroyControlSpaceAsync(c);
         }
-
-
+        
         public static async Task RelPoint(PointInfo info)
         {
             var parent = info.ParentPoint;
@@ -95,13 +133,17 @@ namespace RelAlgebra
             var parent = info.ParentPoint;
             var space = info.ControlSpace;
             //var controlSpaceInfo = await space.Daemons[0].GetControlSpacesAsync();
-            var data = ItemsGenerator.GenerateSmall(ItemsNumber);
-            data[0].NItems = 5;
+            /*var data = ItemsGenerator.GenerateSimple(ItemsNumber, simpleItem => simpleItem);
+            data[0].Number = 5;
+            int n = ItemsNumber;*/
+            Database db = new Database($"E://{info.Channel.Name}.bson");
+            //db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
+            
             await parent.SendAsync(true);
             var command = await parent.GetAsync<RelCommand>();
             if (command.CommandType == CommandType.Filter)
             {
-                var filterResult = data.Where(x => x.NItems == 5).ToList();
+                var filterResult = db.ReadAll().Where(x => x["Number"] == 5).Select(x=>BsonSerializer.Deserialize<SimpleItem>(x)).ToList();
                 var l1 = info.GetPoint(command.DataTo);
                 await l1.SendAsync(filterResult);
             }
@@ -119,10 +161,10 @@ namespace RelAlgebra
                 controlSpaceInfo = await space.Daemons[0].GetControlSpacesAsync();
                 var waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
                     .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith("R[1]["))).ToList();
-                Console.WriteLine($"Waiting from: {waitFromPoints.Count()}");
+                //Console.WriteLine($"Waiting from: {waitFromPoints.Count()}");
                 foreach (var point in waitFromPoints.Select(x => x.Channel))
                 {
-                    var result = await info.GetPoint(point).GetAsync<List<SmallItem>>();
+                    var result = await info.GetPoint(point).GetAsync<List<SimpleItem>>();
                 }
             }
 
