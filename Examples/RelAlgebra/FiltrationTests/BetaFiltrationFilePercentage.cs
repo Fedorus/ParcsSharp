@@ -79,7 +79,7 @@ namespace RelAlgebra
             var r1 = await c.CreatePointAsync("R[1]");
             var r2 = await c.CreatePointAsync("R[2]");
             await r1.RunAsync(new PointStartInfo(RelPoint2));
-
+            
             await r1.GetAsync<bool>();
 
             Stopwatch sw = new Stopwatch();

@@ -12,6 +12,7 @@ using MongoDB.Bson.Serialization;
 using Parcs;
 using RelAlgebra.Db;
 using RelAlgebra.Items;
+using RelAlgebra.SetOperations;
 
 namespace RelAlgebra
 {
@@ -19,7 +20,10 @@ namespace RelAlgebra
     {
         static async Task Main(string[] args)
         {
-            SetOperations.SetOperations.Test();
+            //HashMapSetOperations.Test();
+            //SetOperations.SetOperations.Test();
+            //await SetOperationsTests.UnionParcs.StartAsync();
+            await SetOperationsTests.IntersectParcs.StartAsync();
             //TestInmemoryDatabaseClass();
             //await TestBinaryBson();
             //await TestDiscovery(null);
@@ -156,13 +160,6 @@ namespace RelAlgebra
 
     public class RelInfo
     {
-    }
-
-    public enum CommandType
-    {
-        None = 0,
-        Filter,
-        ReceiveData,
     }
 
     public class BsonObject

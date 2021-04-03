@@ -9,7 +9,7 @@ using RelAlgebra.Items;
 
 namespace RelAlgebra.SetOperations
 {
-    public class SetOperations
+    public static class SetOperations
     {
         public static void Test()
         {
@@ -41,7 +41,7 @@ namespace RelAlgebra.SetOperations
             DisplaySet("Intersect", result);
         }
 
-        private static IEnumerable<LazyBsonDocument> Union(List<LazyBsonDocument> a, List<LazyBsonDocument> b)
+        public static IEnumerable<LazyBsonDocument> Union(this List<LazyBsonDocument> a, List<LazyBsonDocument> b)
         {
             foreach (var aItem in a)
             {
@@ -59,7 +59,7 @@ namespace RelAlgebra.SetOperations
                 yield return item;
             }
         }
-        private static IEnumerable<LazyBsonDocument> Except(List<LazyBsonDocument> a, List<LazyBsonDocument> b)
+        public static IEnumerable<LazyBsonDocument> Except(this List<LazyBsonDocument> a, List<LazyBsonDocument> b)
         {
             foreach (var aItem in a)
             {
@@ -72,7 +72,7 @@ namespace RelAlgebra.SetOperations
                 }
             }
         }
-        private static IEnumerable<LazyBsonDocument> Intersect(List<LazyBsonDocument> a, List<LazyBsonDocument> b)
+        public static IEnumerable<LazyBsonDocument> Intersect(this List<LazyBsonDocument> a, List<LazyBsonDocument> b)
         {
             foreach (var aItem in a)
             {
