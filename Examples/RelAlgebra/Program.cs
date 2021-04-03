@@ -19,12 +19,13 @@ namespace RelAlgebra
     {
         static async Task Main(string[] args)
         {
+            SetOperations.SetOperations.Test();
             //TestInmemoryDatabaseClass();
             //await TestBinaryBson();
             //await TestDiscovery(null);
             //await BetaFiltration.StartAsync(null);
             //TestDatabaseClass();
-            await BetaFiltrationFilePercentage.StartAsync();
+            //await BetaFiltrationFilePercentage.StartAsync();
             //await BetaFiltrationFile.StartAsync();
             //TestBsonDocuments();
         }
