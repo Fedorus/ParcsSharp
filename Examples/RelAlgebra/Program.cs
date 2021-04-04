@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.SymbolStore;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -12,6 +13,7 @@ using MongoDB.Bson.Serialization;
 using Parcs;
 using RelAlgebra.Db;
 using RelAlgebra.Items;
+using RelAlgebra.MultitableOperationsTests;
 using RelAlgebra.SetOperations;
 
 namespace RelAlgebra
@@ -20,10 +22,12 @@ namespace RelAlgebra
     {
         static async Task Main(string[] args)
         {
+            //TestRawBsonDocument();
+            await ExistTest.StartAsync();
             //HashMapSetOperations.Test();
             //SetOperations.SetOperations.Test();
             //await SetOperationsTests.UnionParcs.StartAsync();
-            await SetOperationsTests.IntersectParcs.StartAsync();
+            //await SetOperationsTests.IntersectParcs.StartAsync();
             //TestInmemoryDatabaseClass();
             //await TestBinaryBson();
             //await TestDiscovery(null);
@@ -34,6 +38,31 @@ namespace RelAlgebra
             //TestBsonDocuments();
         }
 
+        public static void TestRawBsonDocument()
+        {
+            int n = 1_000;
+            
+            var items = ItemsGenerator.GenerateSimple(n, simpleItem => simpleItem).ToList();
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            var lazys = items.Select(x => new LazyBsonDocument(x.ToBson()));
+            int b = 0;
+            foreach (var lazy in lazys)
+            {
+                b += lazy["Number"].AsInt32;
+            }
+            
+            Console.WriteLine(sw.Elapsed);
+            sw.Restart();
+            var raws = items.Select(x => new RawBsonDocument(x.ToBson()));
+            int a = 0;
+            foreach (var raw in raws)
+            {
+                a += raw["Number"].AsInt32;
+            }
+            Console.WriteLine(sw.Elapsed);
+        }
+
         public static void TestInmemoryDatabaseClass()
         {
             int n = 100;
@@ -42,7 +71,7 @@ namespace RelAlgebra
             var item = ItemsGenerator.GenerateSimple(n, simpleItem => simpleItem);
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            db.WriteAll(item.Select(x=>new LazyBsonDocument(x.ToBson())));
+            db.WriteAll(item.Select(x=>new RawBsonDocument(x.ToBson())));
             sw.Stop();
             Console.WriteLine($"{n} written in {sw.Elapsed}");
             
@@ -68,7 +97,7 @@ namespace RelAlgebra
             Stopwatch sw = new Stopwatch();
             sw.Start();
             db.StartWrite();
-            db.Write(item.Select(x=>new LazyBsonDocument(x.ToBson())));
+            db.Write(item.Select(x=>new RawBsonDocument(x.ToBson())));
             item = null;
             db.EndWrite();
             sw.Stop();
@@ -85,6 +114,7 @@ namespace RelAlgebra
             sw.Stop();
             Console.WriteLine($"{n} read {i} in {sw.Elapsed}");
         }
+        
 
 
         public static void TestBsonReader()

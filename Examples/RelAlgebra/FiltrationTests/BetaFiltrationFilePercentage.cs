@@ -38,7 +38,7 @@ namespace RelAlgebra
             
             using (Database db = new Database("E://test.bson"))
             {
-                db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
+                db.WriteAll(data.Select(x=>new RawBsonDocument(x.ToBson())));
             }
 
             for (int i = 0; i < RelPointNumber; i++)
@@ -52,7 +52,7 @@ namespace RelAlgebra
 
                 using (var db = new Database($"E://R[1][{i}].bson"))
                 {
-                    db.WriteAll(data2.Select(x=>new LazyBsonDocument(x.ToBson())));
+                    db.WriteAll(data2.Select(x=>new RawBsonDocument(x.ToBson())));
                 }
             }
             
@@ -63,7 +63,7 @@ namespace RelAlgebra
             var data = ItemsGenerator.GenerateSimple(ItemsNumber, simpleItem => simpleItem);
             data[0].Number = 5;
             using Database db = new Database("E://test.bson");
-            db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
+            db.WriteAll(data.Select(x=>new RawBsonDocument(x.ToBson())));
             
             Stopwatch sw = new Stopwatch();
             sw.Start();

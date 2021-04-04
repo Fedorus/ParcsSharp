@@ -14,8 +14,8 @@ namespace RelAlgebra
 {
     public static class BetaFiltrationFile
     {
-        private const int ItemsNumber = 1_000_00;
-        private const int RelPointNumber = 1;
+        private const int ItemsNumber = 1_000_000;
+        private const int RelPointNumber = 2;
         public static async Task StartAsync(List<string> daemonsUrls=null)
         {
             generateFiles();
@@ -43,7 +43,7 @@ namespace RelAlgebra
             data[0].Number = 12;
             using (Database db = new Database("E://test.bson"))
             {
-                db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
+                db.WriteAll(data.Select(x=>new RawBsonDocument(x.ToBson())));
             }
 
             for (int i = 0; i < RelPointNumber; i++)
@@ -52,7 +52,7 @@ namespace RelAlgebra
                 data2[0].Number = 5;
                 using (var db = new Database($"E://R[1][{i}].bson"))
                 {
-                    db.WriteAll(data2.Select(x=>new LazyBsonDocument(x.ToBson())));
+                    db.WriteAll(data2.Select(x=>new RawBsonDocument(x.ToBson())));
                 }
             }
             
@@ -63,7 +63,7 @@ namespace RelAlgebra
             var data = ItemsGenerator.GenerateSimple(ItemsNumber, simpleItem => simpleItem);
             data[0].Number = 5;
             using Database db = new Database("E://test.bson");
-            db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
+            db.WriteAll(data.Select(x=>new RawBsonDocument(x.ToBson())));
             
             Stopwatch sw = new Stopwatch();
             sw.Start();

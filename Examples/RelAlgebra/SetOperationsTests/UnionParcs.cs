@@ -32,12 +32,12 @@ namespace RelAlgebra.SetOperationsTests
             data[0].Number = 12;
             using (Database db = new Database("E://1.bson"))
             {
-                db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
+                db.WriteAll(data.Select(x=>new RawBsonDocument(x.ToBson())));
             }
             data = ItemsGenerator.GenerateSimple(ItemsNumber, simpleItem => simpleItem);
             using (Database db = new Database("E://2.bson"))
             {
-                db.WriteAll(data.Select(x=>new LazyBsonDocument(x.ToBson())));
+                db.WriteAll(data.Select(x=>new RawBsonDocument(x.ToBson())));
             }
 
             for (int i = 0; i < RelPointNumber; i++)
@@ -48,7 +48,7 @@ namespace RelAlgebra.SetOperationsTests
                     File.Delete($"E://R[1][{i}].bson");
                 using (var db = new Database($"E://R[1][{i}].bson"))
                 {
-                    db.WriteAll(data2.Select(x=>new LazyBsonDocument(x.ToBson())));
+                    db.WriteAll(data2.Select(x=>new RawBsonDocument(x.ToBson())));
                 }
             }
             for (int i = 0; i < RelPointNumber; i++)
@@ -59,7 +59,7 @@ namespace RelAlgebra.SetOperationsTests
                     File.Delete($"E://R[2][{i}].bson");
                 using (var db = new Database($"E://R[2][{i}].bson"))
                 {
-                    db.WriteAll(data2.Select(x=>new LazyBsonDocument(x.ToBson())));
+                    db.WriteAll(data2.Select(x=>new RawBsonDocument(x.ToBson())));
                 }
             }
         }
@@ -206,7 +206,7 @@ namespace RelAlgebra.SetOperationsTests
                     var l1 = info.GetPoint(command.DataTo);
                     var finalResult = new InMemoryDb();
                     
-                    finalResult.WriteAll(hashCollection.Items.Select(x=>new LazyBsonDocument(x)));
+                    finalResult.WriteAll(hashCollection.Items.Select(x=>new RawBsonDocument(x)));
                     await l1.SendAsync(finalResult.ToByteArray());
                 }
                 

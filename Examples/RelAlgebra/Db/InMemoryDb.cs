@@ -22,8 +22,8 @@ namespace RelAlgebra.Db
         {
             ms = new MemoryStream();
         }
-
-        public IEnumerable<LazyBsonDocument> ReadAll()
+        
+        public IEnumerable<RawBsonDocument> ReadAll()
         {
             ms.Seek(0, SeekOrigin.Begin);
             using BsonBinaryReader reader = new BsonBinaryReader(ms);
@@ -31,12 +31,31 @@ namespace RelAlgebra.Db
             reader.ReadStartArray();
             while (reader.State != BsonReaderState.EndOfArray)
             {
-                yield return new LazyBsonDocument(reader.ReadRawBsonDocument());
+                yield return new RawBsonDocument(reader.ReadRawBsonDocument());
                 reader.ReadBsonType();
             }
         }
+        public InMemoryDb WhereFieldWithSameValue(IEnumerable<RawBsonDocument> items, string name)
+        {
+            InMemoryDb result = new InMemoryDb();
+            result.StartWrite();
+            foreach (var doc in items)
+            {
+                var bytes = doc.Slice.AccessBackingBytes(0).Array;
+                foreach (var item in ReadAll())
+                {
+                    if (item[name] == doc[name])
+                    {
+                        result.Write(bytes);
+                        break;
+                    }
+                }
+            }
+            result.EndWrite();
+            return result;
+        }
 
-        public void WriteAll(IEnumerable<LazyBsonDocument> items)
+        public void WriteAll(IEnumerable<RawBsonDocument> items)
         {
             ms.Dispose();
             ms = new MemoryStream();
@@ -70,12 +89,17 @@ namespace RelAlgebra.Db
             _writer.WriteStartArray("Docs");
         }
 
-        public void Write(LazyBsonDocument item)
+        public void Write(RawBsonDocument item)
         {
             _writer.WriteRawBsonDocument(item.Slice);
         }
 
-        public void Write(IEnumerable<LazyBsonDocument> items)
+        public void Write(byte[] bytes)
+        {
+            _writer.WriteRawBsonDocument(new ByteArrayBuffer(bytes));
+        }
+
+        public void Write(IEnumerable<RawBsonDocument> items)
         {
             foreach (var item in items)
             {

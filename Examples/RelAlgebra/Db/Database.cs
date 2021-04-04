@@ -19,7 +19,7 @@ namespace RelAlgebra.Db
             _path = path;
         }
 
-        public IEnumerable<LazyBsonDocument> ReadAll()
+        public IEnumerable<RawBsonDocument> ReadAll()
         {
             using var file = File.OpenRead(_path);
             using BsonBinaryReader reader = new BsonBinaryReader(file);
@@ -27,14 +27,14 @@ namespace RelAlgebra.Db
             reader.ReadStartArray();
             while (reader.State != BsonReaderState.EndOfArray)
             {
-                yield return new LazyBsonDocument(reader.ReadRawBsonDocument());
+                yield return new RawBsonDocument(reader.ReadRawBsonDocument());
                 reader.ReadBsonType();
                 //Console.WriteLine();
                 //Console.WriteLine(reader.State);
             }
         }
 
-        public void WriteAll(IEnumerable<LazyBsonDocument> items)
+        public void WriteAll(IEnumerable<RawBsonDocument> items)
         {
             using FileStream file = File.OpenWrite(_path);
             using BsonBinaryWriter writer = new BsonBinaryWriter(file);
@@ -66,12 +66,12 @@ namespace RelAlgebra.Db
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void Write(LazyBsonDocument item)
+        public void Write(RawBsonDocument item)
         {
             _writer.WriteRawBsonDocument(item.Slice);
         }
 
-        public void Write(IEnumerable<LazyBsonDocument> items)
+        public void Write(IEnumerable<RawBsonDocument> items)
         {
             foreach (var item in items)
             {

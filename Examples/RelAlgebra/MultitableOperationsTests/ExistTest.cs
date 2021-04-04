@@ -5,62 +5,74 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using Parcs;
 using RelAlgebra.Db;
 using RelAlgebra.Items;
 using RelAlgebra.SetOperations;
 
-namespace RelAlgebra.SetOperationsTests
+namespace RelAlgebra.MultitableOperationsTests
 {
-    public class IntersectParcs
+    public class ExistTest
     {
-        private const int ItemsNumber = 2_000_000;
+        private const int ItemsNumber = 100_000;
         private const int RelPointNumber = 6;
-        public static async Task StartAsync(List<string> daemonsUrls=null)
+
+        public static async Task StartAsync(List<string> daemonsUrls = null)
         {
-            generateFiles(); 
+            generateFiles();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
+            TestOneThreaded();
             TestOneThreaded();
             await StartParcsCSAsync(daemonsUrls);
             await StartParcsCSAsync(daemonsUrls);
-            
+            await StartParcsCSAsync(daemonsUrls);
+            await StartParcsCSAsync(daemonsUrls);
+            await StartParcsCSAsync(daemonsUrls);
+            //await StartParcsCSAsync(daemonsUrls);
             //await TestBetaFiltrationAsync(daemonsUrls);
         }
 
         static void generateFiles()
         {
             var data = ItemsGenerator.GenerateSimple(ItemsNumber, simpleItem => simpleItem);
-            data[0].Number = 12;
+            
             using (Database db = new Database("E://1.bson"))
             {
-                db.WriteAll(data.Select(x=>new RawBsonDocument(x.ToBson())));
+                db.WriteAll(data.Select(x => new RawBsonDocument(x.ToBson())));
             }
+
             data = ItemsGenerator.GenerateSimple(ItemsNumber, simpleItem => simpleItem);
             using (Database db = new Database("E://2.bson"))
             {
-                db.WriteAll(data.Select(x=>new RawBsonDocument(x.ToBson())));
+                db.WriteAll(data.Select(x => new RawBsonDocument(x.ToBson())));
             }
-            
+
             for (int i = 0; i < RelPointNumber; i++)
             {
-                var data2 = ItemsGenerator.GenerateSimple(ItemsNumber/RelPointNumber, simpleItem => simpleItem);
+                var data2 = ItemsGenerator.GenerateSimple(ItemsNumber / RelPointNumber, simpleItem => simpleItem);
                 data2[0].Number = 5;
-                if(File.Exists($"E://R[1][{i}].bson"))
+                if (File.Exists($"E://R[1][{i}].bson"))
                     File.Delete($"E://R[1][{i}].bson");
                 using (var db = new Database($"E://R[1][{i}].bson"))
                 {
-                    db.WriteAll(data2.Select(x=>new RawBsonDocument(x.ToBson())));
+                    db.WriteAll(data2.Select(x => new RawBsonDocument(x.ToBson())));
                 }
             }
+
             for (int i = 0; i < RelPointNumber; i++)
             {
-                var data2 = ItemsGenerator.GenerateSimple(ItemsNumber/RelPointNumber, simpleItem => simpleItem);
+                var data2 = ItemsGenerator.GenerateSimple(ItemsNumber / RelPointNumber, simpleItem => simpleItem);
                 data2[0].Number = 5;
-                if(File.Exists($"E://R[2][{i}].bson"))
+                if (File.Exists($"E://R[2][{i}].bson"))
                     File.Delete($"E://R[2][{i}].bson");
                 using (var db = new Database($"E://R[2][{i}].bson"))
                 {
-                    db.WriteAll(data2.Select(x=>new RawBsonDocument(x.ToBson())));
+                    db.WriteAll(data2.Select(x => new RawBsonDocument(x.ToBson())));
                 }
             }
         }
@@ -69,22 +81,21 @@ namespace RelAlgebra.SetOperationsTests
         {
             using Database db1 = new Database("E://1.bson");
             using Database db2 = new Database("E://2.bson");
-            
+            InMemoryDb idb1 = new InMemoryDb(db1.ToByteArray());
+            InMemoryDb idb2 = new InMemoryDb(db2.ToByteArray());
             Stopwatch sw = new Stopwatch();
             sw.Start();
-            var list1 = db1.ReadAll().ToList();
-            var list2 = db2.ReadAll().ToList(); 
             //var filterResult = RelAlgebra.SetOperations.SetOperations.Union(list1, list2).ToList();
-            HashMapSetOperations operations =
-                new HashMapSetOperations(list1.Select(x => x.Slice.AccessBackingBytes(0).Array));
-            operations.Intersect(list2.Select(x=>x.Slice.AccessBackingBytes(0).Array));
-            var filterResult = operations.Items;
-            Console.WriteLine($"1th done in {sw.Elapsed} count = {filterResult.Count}");
+            var name = "Number";
+            
+            InMemoryDb result = idb1.WhereFieldWithSameValue(idb2.ReadAll(), name);
+
+            Console.WriteLine($"1th done in {sw.Elapsed} count = {result.ToByteArray().Length}");
         }
 
         public static async Task StartParcsCSAsync(List<string> daemonsUrls)
         {
-            ControlSpace c = new ControlSpace("UnionParcs", daemonsUrls);
+            ControlSpace c = new ControlSpace("ExistParcs", daemonsUrls);
             await c.AddDirectoryAsync(Directory.GetCurrentDirectory());
             var r1 = await c.CreatePointAsync("R[1]");
             var r2 = await c.CreatePointAsync("R[2]");
@@ -100,22 +111,22 @@ namespace RelAlgebra.SetOperationsTests
             await resPoint.RunAsync(new PointStartInfo(ResultPoint));
 
             //send 1st point 
-            var command = new RelCommand() {CommandType = CommandType.SendData, DataTo = r2.Channel}; 
+            var command = new RelCommand() {CommandType = CommandType.Exist, DataTo = r2.Channel};
             await r1.SendAsync(command);
-            
+
             //send 2nd point
             await r2.SendAsync(new RelCommand()
-                {CommandType = CommandType.Intersect, DataFrom = r1.Channel, DataTo = resPoint.Channel});
-            
+                {CommandType = CommandType.Exist, DataFrom = r1.Channel, DataTo = resPoint.Channel});
+
             //send result point
-            var command2 = new RelCommand() {DataFrom = r2.Channel,  CommandType = CommandType.ReceiveData};
+            var command2 = new RelCommand() {DataFrom = r2.Channel, CommandType = CommandType.ExistReceiveData};
             await resPoint.SendAsync(command2);
 
             await resPoint.GetAsync<bool>();
             Console.WriteLine($"FiltrationFile done in {sw.Elapsed}");
             await c.Daemons[0].DestroyControlSpaceAsync(c);
         }
-        
+
         public static async Task RelPoint(PointInfo info)
         {
             var parent = info.ParentPoint;
@@ -136,29 +147,69 @@ namespace RelAlgebra.SetOperationsTests
             do
             {
                 var command = await parent.GetAsync<RelCommand>();
-                if (command.CommandType == CommandType.Filter || command.CommandType == CommandType.Union || command.CommandType == CommandType.SendData || command.CommandType == CommandType.Intersect)
+                if (command.CommandType == CommandType.Filter || command.CommandType == CommandType.Union ||
+                    command.CommandType == CommandType.SendData || command.CommandType == CommandType.Intersect)
                 {
                     foreach (var subPoint in subPoints)
                     {
                         await subPoint.SendAsync(command);
                     }
                 }
+                else if (command.CommandType == CommandType.Exist)
+                {
+                    if (command.DataFrom == null)
+                    {
+                        subPoints.ForEach(x=>x.SendAsync(command));
+                    }
+                    else
+                    {
+                        controlSpaceInfo = await space.Daemons[0].GetControlSpacesAsync();
+                        var waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
+                            .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataFrom.Name + "[")))
+                            .Select(x => x.Channel).Select(info.GetPoint);
+
+                        var hashCollection = new HashMapSetOperations(new List<byte[]>());
+                        foreach (var point in waitFromPoints)
+                        {
+                            var data = await point.GetAsync<byte[]>();
+
+                            foreach (var subPoint in subPoints)
+                            {
+                                await subPoint.SendAsync(new RelCommand() {CommandType = CommandType.Exist});
+                                await subPoint.SendAsync(data);
+                            }
+
+                            var tasks = subPoints.Select(x => x.GetAsync<byte[]>()).ToList();
+                            while (tasks.Any())
+                            {
+                                var res = await Task.WhenAny(tasks);
+                                var db = new InMemoryDb(await res);
+                                hashCollection.Union(db.ReadAll().Select(x => x.Slice.AccessBackingBytes(0).Array));
+                                tasks.Remove(res);
+                            }
+                        }
+                        var resDb = new InMemoryDb();
+                        resDb.WriteAll(hashCollection.Items.Select(x => new RawBsonDocument(new ByteArrayBuffer(x))));
+                        await info.GetPoint(command.DataTo).SendAsync(resDb.ToByteArray());
+                    }
+                }
                 else
                 {
                     throw new Exception("Unknown command");
                 }
-                
+
             } while (!info.CancellationToken.IsCancellationRequested);
         }
+        
+        
 
         public static async Task RelSubPoint(PointInfo info)
         {
             var parent = info.ParentPoint;
             var space = info.ControlSpace;
-            
+
             Database db = new Database($"E://{info.Channel.Name}.bson");
             
-            //Send that we are ready
             await parent.SendAsync(true);
             do
             {
@@ -174,11 +225,13 @@ namespace RelAlgebra.SetOperationsTests
                 {
                     var controlSpaceInfo = await space.Daemons[0].GetControlSpacesAsync();
                     var waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
-                        .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataTo.Name+"["))).Select(x=>x.Channel).ToList();
+                        .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataTo.Name + "[")))
+                        .Select(x => x.Channel).ToList();
                     if (waitFromPoints.Count == 0)
                     {
                         waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
-                            .SelectMany(x => x.Data.Where(y => y.Channel.Name == command.DataTo.Name)).Select(x=>x.Channel).ToList();
+                            .SelectMany(x => x.Data.Where(y => y.Channel.Name == command.DataTo.Name))
+                            .Select(x => x.Channel).ToList();
                     }
 
                     foreach (var point in waitFromPoints)
@@ -186,50 +239,74 @@ namespace RelAlgebra.SetOperationsTests
                         await info.GetPoint(point).SendAsync(db.ToByteArray());
                     }
                 }
-                else if(command.CommandType == CommandType.Union)
+                else if (command.CommandType == CommandType.Union)
                 {
                     var controlSpaceInfo = await space.Daemons[0].GetControlSpacesAsync();
                     var waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
-                        .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataFrom.Name+"["))).ToList();
+                        .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataFrom.Name + "[")))
+                        .ToList();
                     //Console.WriteLine($"Waiting from: {waitFromPoints.Count()}");
 
-                    HashMapSetOperations hashCollection = new HashMapSetOperations(db.ReadAll().Select(x=>x.Slice.AccessBackingBytes(0).Array));
-                   var data = db.ReadAll().ToList();
+                    HashMapSetOperations hashCollection =
+                        new HashMapSetOperations(db.ReadAll().Select(x => x.Slice.AccessBackingBytes(0).Array));
+                    var data = db.ReadAll().ToList();
                     foreach (var point in waitFromPoints.Select(x => x.Channel))
                     {
                         var result = await info.GetPoint(point).GetAsync<byte[]>();
-                        var results = new InMemoryDb(result).ReadAll().Select(x=>x.Slice.AccessBackingBytes(0).Array);
+                        var results = new InMemoryDb(result).ReadAll().Select(x => x.Slice.AccessBackingBytes(0).Array);
                         //data = RelAlgebra.SetOperations.SetOperations.Except(data, new InMemoryDb(result).ReadAll().ToList()).ToList();
                         hashCollection.Except(results);
                     }
+
                     var l1 = info.GetPoint(command.DataTo);
                     var finalResult = new InMemoryDb();
-                    
-                    finalResult.WriteAll(hashCollection.Items.Select(x=>new RawBsonDocument(x)));
+
+                    finalResult.WriteAll(hashCollection.Items.Select(x => new RawBsonDocument(x)));
                     await l1.SendAsync(finalResult.ToByteArray());
                 }
                 else if (command.CommandType == CommandType.Intersect)
                 {
                     var controlSpaceInfo = await space.Daemons[0].GetControlSpacesAsync();
                     var waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
-                        .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataFrom.Name+"["))).ToList();
+                        .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataFrom.Name + "[")))
+                        .ToList();
 
                     var finalResult = new InMemoryDb();
                     finalResult.StartWrite();
                     foreach (var point in waitFromPoints.Select(x => x.Channel))
                     {
                         var result = await info.GetPoint(point).GetAsync<byte[]>();
-                        
-                        HashMapSetOperations hashCollection = new HashMapSetOperations(db.ReadAll().Select(x=>x.Slice.AccessBackingBytes(0).Array));
-                        var results = new InMemoryDb(result).ReadAll().Select(x=>x.Slice.AccessBackingBytes(0).Array);
-                        
+
+                        HashMapSetOperations hashCollection =
+                            new HashMapSetOperations(db.ReadAll().Select(x => x.Slice.AccessBackingBytes(0).Array));
+                        var results = new InMemoryDb(result).ReadAll().Select(x => x.Slice.AccessBackingBytes(0).Array);
+
                         hashCollection.Intersect(results);
-                        finalResult.Write(hashCollection.Items.Select(x=>new RawBsonDocument(x)));
+                        finalResult.Write(hashCollection.Items.Select(x => new RawBsonDocument(x)));
                     }
+
                     finalResult.EndWrite();
-                    
+
                     var l1 = info.GetPoint(command.DataTo);
                     await l1.SendAsync(finalResult.ToByteArray());
+                }
+                else if (command.CommandType == CommandType.Exist)
+                {
+                    if (command.DataTo != null)
+                    {
+                        await info.GetPoint(command.DataTo).SendAsync(db.ToByteArray());
+                    }
+                    else
+                    {
+                        Stopwatch sw = new Stopwatch();
+                        sw.Start();
+                        var data = await parent.GetAsync<byte[]>();
+                        InMemoryDb inMemoryDb = new InMemoryDb(data);
+                        inMemoryDb.WhereFieldWithSameValue(db.ReadAll(), "Number");
+                        
+                        await parent.SendAsync(inMemoryDb.ToByteArray());
+                        
+                    }
                 }
             } while (!info.CancellationToken.IsCancellationRequested);
         }
@@ -243,12 +320,13 @@ namespace RelAlgebra.SetOperationsTests
             do
             {
                 var command = await parent.GetAsync<RelCommand>();
-                
+
                 if (command.CommandType == CommandType.ReceiveData)
                 {
                     controlSpaceInfo = await space.Daemons[0].GetControlSpacesAsync();
                     var waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
-                        .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataFrom.Name+"["))).ToList();
+                        .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataFrom.Name + "[")))
+                        .ToList();
                     //Console.WriteLine($"Waiting from: {waitFromPoints.Count()}");
 
                     var resultTasks = new List<Task<byte[]>>();
@@ -258,10 +336,11 @@ namespace RelAlgebra.SetOperationsTests
                     }
 
                     //union results gathering
-                    if (command.DataTo != null) 
+                    if (command.DataTo != null)
                     {
                         waitFromPoints = controlSpaceInfo.Where(x => x.Name == space.Name)
-                            .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataTo.Name+"["))).ToList();
+                            .SelectMany(x => x.Data.Where(y => y.Channel.Name.StartsWith(command.DataTo.Name + "[")))
+                            .ToList();
                         foreach (var point in waitFromPoints.Select(x => x.Channel))
                         {
                             resultTasks.Add(info.GetPoint(point).GetAsync<byte[]>());
@@ -275,10 +354,15 @@ namespace RelAlgebra.SetOperationsTests
                         resultTasks.Remove(res);
                     }
                 }
+                else if (command.CommandType == CommandType.ExistReceiveData)
+                {
+                    var data = await info.GetPoint(command.DataFrom).GetAsync<byte[]>();
+                    Console.WriteLine(data.Length);
+                }
+
                 await parent.SendAsync(true);
                 Console.WriteLine("Done");
             } while (!info.CancellationToken.IsCancellationRequested);
         }
-    
     }
 }

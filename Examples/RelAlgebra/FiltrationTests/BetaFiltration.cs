@@ -11,8 +11,8 @@ namespace RelAlgebra
 {
     public class BetaFiltration
     {
-        private const int ItemsNumber = 2_000_000;
-        private const int RelPointNumber = 2;
+        private const int ItemsNumber = 1_000_000;
+        private const int RelPointNumber = 3;
         public static async Task StartAsync(List<string> daemonsUrls)
         {
             TestOneThreaded();

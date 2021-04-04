@@ -5,11 +5,11 @@ namespace RelAlgebra.Db
 {
     public interface IDb
     {
-        IEnumerable<LazyBsonDocument> ReadAll();
-        void WriteAll(IEnumerable<LazyBsonDocument> items);
+        IEnumerable<RawBsonDocument> ReadAll();
+        void WriteAll(IEnumerable<RawBsonDocument> items);
         void StartWrite();
-        void Write(LazyBsonDocument item);
-        void Write(IEnumerable<LazyBsonDocument> items);
+        void Write(RawBsonDocument item);
+        void Write(IEnumerable<RawBsonDocument> items);
         void EndWrite();
 
         byte[] ToByteArray();

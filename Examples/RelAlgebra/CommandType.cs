@@ -7,6 +7,8 @@ namespace RelAlgebra
         ReceiveData,
         Union,
         SendData,
-        Intersect
+        Intersect,
+        Exist,
+        ExistReceiveData
     }
 }
