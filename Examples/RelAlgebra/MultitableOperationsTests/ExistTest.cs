@@ -16,7 +16,7 @@ namespace RelAlgebra.MultitableOperationsTests
 {
     public class ExistTest
     {
-        private const int ItemsNumber = 100_000;
+        private const int ItemsNumber = 5_000;
         private const int RelPointNumber = 6;
 
         public static async Task StartAsync(List<string> daemonsUrls = null)

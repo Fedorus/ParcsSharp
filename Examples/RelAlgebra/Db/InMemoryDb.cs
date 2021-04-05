@@ -42,9 +42,10 @@ namespace RelAlgebra.Db
             foreach (var doc in items)
             {
                 var bytes = doc.Slice.AccessBackingBytes(0).Array;
+                var value = doc[name];
                 foreach (var item in ReadAll())
                 {
-                    if (item[name] == doc[name])
+                    if (item[name] == value)
                     {
                         result.Write(bytes);
                         break;
